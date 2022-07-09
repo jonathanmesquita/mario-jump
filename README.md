@@ -1,39 +1,49 @@
-# Projeto_mario-jump
-
+# Projeto Mario Jump
 Projeto javascript jogo mario.
 
 ## Demo
-- Esta é a [demo principal](*link do projeto*) em que estamos trabalhando, um projeto com React for Web e Flutter para desenvolvimento mobile.
+
+Depois de algum tempo empacado em um projeto pessoal fiquei bastante desanimado e não conseguia fazer mais nada e esse desafio da [Alura](https://www.alura.com.br/) me ajudou a destravar.
+
+- Esta é a [demo principal](*"https://github.com/jonathanmesquita/Projeto_mario-jump"*) em que estamos trabalhando, um projeto com React for Web e Flutter para desenvolvimento mobile.
+
+#### Desktop
 
 ![Isso é uma imagem](https://j.gifs.com/pZ64Ly.gif)
 
 
-## Contributing
-- The project is not well structured for contributions right now, if you find a bug, please [open an issue](https://github.com/skynexui/components/issues) and let's discuss how to implement it 😋.
+## Minhas dificuldades nesse projeto foram:
 
-### Dev mode
-#### React (Web)
-- Use the folder `examples/demo_base` that simulates a real world project structure.
-- This setup has `build:watch` mode
-```sh
-# First terminal window
-yarn install && yarn build:watch
-# Second terminal window
-yarn dev:demo_base
-```
-#### Flutter (Other platforms)
-- Open inside VSCode `examples/demo_base/lib/main.dart`, them run it through it.
+- Saber ler corretamente as medidas do projeto no figma e entender que as propriedades que ali estavam nem todas deveriam ser usadas.
+- Tive muita dificuldade com a responsividade, pois usei propriedades desnecessárias na construção do layout como width e height.
+
+## O que conseguir fazer sem problemas:
+
+- Escrever o código HTML
+- Escrever o código CSS
+- Executar o projeto mais rápido do que imaginei que seria
+
+
+## Tecnologias usadas:
+
+- HTML
+- CSS
+- Javascript (para o menu responsivo)
+
+## Demonstração  do projeto
+
+Github Pages: [clica aqui](https://jacksonadh.github.io/Alura7DaysOfCodeHtml/)
 
 
 ##  Como usar?
 
 ```sh
-- Apertar qualquer tecla do teclado
+- Apertar qualquer `tecla` do teclado
 flutter pub add skynexui_components
 ```
 
 ## How to install?
-- Utilizar o visualcod
-- baixar banco de imagem
+- Utilizar o visualcod.
+- baixar banco de imagens.
 
 ## Supporters
