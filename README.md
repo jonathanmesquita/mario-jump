@@ -8,7 +8,7 @@ Depois de algum tempo empacado em um projeto pessoal fiquei bastante desanimado 
 
 ## Demonstração  do projeto
 
-- Esta é a <a href="https://github.com/jonathanmesquita/mario-jump-main">[demo principal]</a> em que estou trabalhando.
+- Esta é a <a href="https://jonathanmesquita.github.io/mario-jump/">[demo principal]</a> em que estou trabalhando.
 
 
 #### Desktop
