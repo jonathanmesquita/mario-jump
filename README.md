@@ -1,11 +1,15 @@
 # Projeto Mario Jump
 Projeto javascript jogo mario.
 
-## Demo
+## Sobre o projeto
 
 Depois de algum tempo empacado em um projeto pessoal fiquei bastante desanimado e não conseguia fazer mais nada e esse desafio da [Alura](https://www.alura.com.br/) me ajudou a destravar.
 
-- Esta é a [demo principal](*"https://github.com/jonathanmesquita/Projeto_mario-jump"*) em que estamos trabalhando, um projeto com React for Web e Flutter para desenvolvimento mobile.
+
+## Demonstração  do projeto
+
+- Esta é a <a href="https://github.com/jonathanmesquita/Projeto_mario-jump">[demo principal]</a> em que estou trabalhando.
+
 
 #### Desktop
 
@@ -29,11 +33,6 @@ Depois de algum tempo empacado em um projeto pessoal fiquei bastante desanimado 
 - HTML
 - CSS
 - Javascript (para o menu responsivo)
-
-## Demonstração  do projeto
-
-Github Pages: [clica aqui](https://jacksonadh.github.io/Alura7DaysOfCodeHtml/)
-
 
 ##  Como usar?
 
