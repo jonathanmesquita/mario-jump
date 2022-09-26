@@ -1,6 +1,8 @@
 # Projeto Mario Jump
 
-Rápida descrição do objetivo de fazer esse projeto
+Nesse objetivo do projeto a programar um jogo simples usando apenas html, css e JavaScript.
+
+Ao final, você terá feito um jogo onde é possível pular obstáculos. O jogo termina quando você colide com algum obstáculo.
 
 | :placard: Vitrine.Dev |     |
 | -------------  | --- |
