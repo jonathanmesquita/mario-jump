@@ -12,7 +12,7 @@ Ao final, você terá feito um jogo onde é possível pular obstáculos. O jogo 
 | :fire: Desafio     | [Manual do Dev - Jogo Simples usando JavaScript e HTML](https://www.youtube.com/watch?v=r9buAwVBDhA)
 
 <!-- Inserir imagem com a #vitrinedev ao final do link -->
-![](https://j.gifs.com/pZ64Ly.gif#vitrinedev)
+![](https://j.gifs.com/790Y4A.gif#vitrinedev)
 
 ## Detalhes do projeto
 
