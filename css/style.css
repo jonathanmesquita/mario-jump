@@ -7,80 +7,47 @@
 .game-board {
     width: 100%;
     height: 500px;
-    border: 15px solid  rgb(rgb(0, 145, 24), green, blue);
+    border: 15px solid rgb(0, 145, 24);
     margin: 0 auto;
     position: relative;
     overflow: hidden;
     background: linear-gradient(#87CEEB, #E0F6FF);
+    /* Taps on the board jump instead of scrolling/zooming/selecting. */
+    touch-action: none;
+    user-select: none;
+    -webkit-user-select: none;
+}
 
-} 
+/* The canvas fills the board; its pixel size is set from JS (see game.js). */
+.game-canvas {
+    display: block;
+    width: 100%;
+    height: 100%;
+}
 
-.pipe {  
+.hud {
     position: absolute;
-    bottom: 0;
-    width: 80px;
-    animation: pipe-animation 1.5s infinite linear;
+    top: 12px;
+    left: 16px;
+    font: bold 20px/1 "Courier New", monospace;
+    color: #1d3b1f;
+    pointer-events: none;
 }
 
-.mario {
-    width: 150px;
+.message {
     position: absolute;
-    bottom: 0;
-}
- 
-.jump {
-    animation: jump 500ms ease-out;
-}
-
-.clouds {
-    position: absolute;
-    width: 550px;
-    animation: clouds-animation 20s infinite linear;
-}
-
-@keyframes pipe-animation {
-    from {
-        right: -80px;
-    }
-
-    to {
-        right: 100%;
-    }
+    top: 38%;
+    left: 0;
+    width: 100%;
+    padding: 0 16px;
+    text-align: center;
+    white-space: pre-line;
+    font: bold 28px/1.4 "Courier New", monospace;
+    color: #1d3b1f;
+    text-shadow: 0 2px 0 rgba(255, 255, 255, 0.7);
+    pointer-events: none;
 }
 
-@keyframes jump {
-    
-    0%  {
-        bottom: 0;
-    }
-
-    40% {
-        bottom: 180px;
-    }
-
-    50% {
-        bottom: 180px;
-    }
-
-    60%{
-        bottom: 180px;        
-    }
-
-    
-
-    100%{
-        bottom: 0;        
-    }
-}
-
-
-@keyframes clouds-animation {
-    from {
-        right: -550px;
-    }
-
-    to {
-        right: 100%;
-    }
-    
+.message:empty {
+    display: none;
 }
