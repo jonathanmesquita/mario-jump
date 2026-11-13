@@ -242,12 +242,14 @@ function loadImage(src) {
         // decode() finishes the heavy work now, so the first time a big
         // scenery is drawn the game does not stutter.
         image.onload = () => image.decode().then(() => resolve(image), () => resolve(image));
-        image.onerror = () => reject(new Error(`Could not load ${src}`));
+        image.onerror = () => reject(new Error(src));
         image.src = src;
     });
 }
 
 async function boot() {
+    i18n.init(document.querySelector('.languages'));
+
     try {
         [images.sprite, images.clouds] = await Promise.all([
             loadImage(SPRITE.src),
@@ -257,7 +259,7 @@ async function boot() {
             images.obstacles[name] = await loadImage(OBSTACLE_TYPES[name].image);
         }));
     } catch (error) {
-        messageLabel.textContent = error.message;
+        messageLabel.textContent = `${i18n.t('loadError')} ${error.message}`;
         return;
     }
 
