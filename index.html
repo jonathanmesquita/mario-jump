@@ -2,22 +2,36 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <link rel="stylesheet" href="./css/style.css">
-    <script src="./js/script.js" defer></script>
+
+    <!-- Classic scripts (not ES modules) so the game still runs by opening
+         index.html directly from disk. Order matters: each file only uses
+         what the files above it define. -->
+    <script src="./js/config.js" defer></script>
+    <script src="./js/input.js" defer></script>
+    <script src="./js/sprite.js" defer></script>
+    <script src="./js/player.js" defer></script>
+    <script src="./js/obstacles.js" defer></script>
+    <script src="./js/collision.js" defer></script>
+    <script src="./js/scenes.js" defer></script>
+    <script src="./js/game.js" defer></script>
 
     <title>Mario Jump</title>
 </head>
 <body>
 
     <div class="game-board">
+        <canvas class="game-canvas" aria-label="Jump game"></canvas>
 
-    <img src="./images/pipe.png"   class="pipe"  alt="">
-    <img src="./images/mario.gif"  class="mario" alt="">
-    <img src="./images/clouds.png" class="clouds" alt="">
+        <div class="hud">
+            Score: <span class="score">0</span>
+            &middot; Best: <span class="best">0</span>
+        </div>
 
+        <div class="scene-name"></div>
+        <div class="message" role="status"></div>
     </div>
 
 </body>
