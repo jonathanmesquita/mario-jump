@@ -31,7 +31,33 @@
     left: 16px;
     font: bold 20px/1 "Courier New", monospace;
     color: #1d3b1f;
+    text-shadow: 0 0 4px #fff, 0 0 4px #fff;   /* stays readable over any scenery */
     pointer-events: none;
+}
+
+/* Name of the place, shown for a moment when the scenery changes. */
+.scene-name {
+    position: absolute;
+    top: 14%;
+    left: 0;
+    width: 100%;
+    text-align: center;
+    font: bold 32px/1.2 "Courier New", monospace;
+    color: #fff;
+    text-shadow: 0 3px 0 #1d3b1f, 0 0 8px rgba(0, 0, 0, 0.6);
+    opacity: 0;
+    pointer-events: none;
+}
+
+.scene-name.show {
+    animation: scene-name 2.5s ease-out;
+}
+
+@keyframes scene-name {
+    0%   { opacity: 0; }
+    15%  { opacity: 1; }
+    75%  { opacity: 1; }
+    100% { opacity: 0; }
 }
 
 .message {

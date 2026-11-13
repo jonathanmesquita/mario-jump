@@ -22,6 +22,12 @@ const CONFIG = {
         hitboxInset: 6,      // shrink the pipe's box a little on each side
     },
 
+    scenery: {
+        pointsPerScene: 10,  // pipes to clear before the next scene
+        fadeTime: 0.8,       // cross-fade between two scenes
+        scrollFactor: 0.25,  // background speed as a fraction of the pipe speed
+    },
+
     clouds: { width: 550, height: 253, speed: 80, y: 0 },
 
     maxDelta: 1 / 30,        // longest step simulated in one frame (tab switch, lag spike)

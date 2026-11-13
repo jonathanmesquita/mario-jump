@@ -7,11 +7,12 @@ const ctx = canvas.getContext('2d');
 const scoreLabel = document.querySelector('.score');
 const bestLabel = document.querySelector('.best');
 const messageLabel = document.querySelector('.message');
+const sceneLabel = document.querySelector('.scene-name');
 
 // Add ?debug to the URL to see the hitboxes.
 const DEBUG = new URLSearchParams(location.search).has('debug');
 
-const images = {};
+const images = { scenes: [] };
 const world = { width: 0, height: 0 };   // canvas size in CSS px; ground = world.height
 
 const game = {
@@ -22,6 +23,7 @@ const game = {
     cloudsX: 0,
     player: createPlayer(),
     obstacles: createObstacles(),
+    scenery: createScenery(),
 };
 
 /* ---------- state ---------- */
@@ -33,9 +35,11 @@ function startGame() {
     game.score = 0;
     game.player = createPlayer();
     game.obstacles = createObstacles();
+    game.scenery = createScenery();
     input.clear();
     updateHud();
     messageLabel.textContent = '';
+    if (SCENES.length > 1) showSceneName();
 }
 
 function endGame() {
@@ -52,6 +56,14 @@ function endGame() {
 function handlePress() {
     if (game.state === 'ready') startGame();
     else if (game.state === 'gameover' && game.gameOverTime >= CONFIG.restartDelay) startGame();
+}
+
+/* Flashes the name of the current place. */
+function showSceneName() {
+    sceneLabel.textContent = SCENES[game.scenery.index].name;
+    sceneLabel.classList.remove('show');
+    void sceneLabel.offsetWidth;   // restart the CSS animation
+    sceneLabel.classList.add('show');
 }
 
 /* ---------- score ---------- */
@@ -93,6 +105,7 @@ function update(dt) {
 
     if (game.state === 'gameover') {
         game.gameOverTime += dt;      // everything stays frozen where it was
+        updateScenery(game.scenery, dt, game.score, false);   // only lets a fade finish
         return;
     }
 
@@ -104,6 +117,8 @@ function update(dt) {
         updateHud();
     }
 
+    if (updateScenery(game.scenery, dt, game.score, true)) showSceneName();
+
     if (playerHitsObstacle(game.player, game.obstacles, world.height)) endGame();
 }
 
@@ -113,8 +128,7 @@ function render() {
     const groundY = world.height;
     ctx.clearRect(0, 0, world.width, world.height);
 
-    const clouds = CONFIG.clouds;
-    ctx.drawImage(images.clouds, Math.round(game.cloudsX), clouds.y, clouds.width, clouds.height);
+    drawScenery(ctx, game.scenery, images.scenes, images.clouds, game.cloudsX, world);
 
     drawObstacles(ctx, images.pipe, game.obstacles, groundY);
     drawPlayer(ctx, images.sprite, game.player, game.state, groundY);
@@ -174,6 +188,12 @@ async function boot() {
         messageLabel.textContent = error.message;
         return;
     }
+
+    // A scenery image that fails to load is not fatal: that scene just
+    // falls back to the sky gradient.
+    images.scenes = await Promise.all(SCENES.map((scene) => (
+        scene.image ? loadImage(scene.image).catch(() => null) : null
+    )));
 
     resizeCanvas();
     window.addEventListener('resize', resizeCanvas);
