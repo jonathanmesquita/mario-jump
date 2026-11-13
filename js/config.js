@@ -24,8 +24,9 @@ const CONFIG = {
 
     scenery: {
         pointsPerScene: 10,  // pipes to clear before the next scene
-        fadeTime: 0.8,       // cross-fade between two scenes
-        scrollFactor: 0.25,  // background speed as a fraction of the pipe speed
+        fadeTime: 0.6,       // cross-fade between two scenes
+        scrollFactor: 1,     // background speed as a fraction of the pipe speed (1 = same floor)
+        groundOffset: 36,    // the pavement in the art: feet stand this far above the bottom edge
     },
 
     clouds: { width: 550, height: 253, speed: 80, y: 0 },

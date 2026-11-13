@@ -13,7 +13,12 @@ const sceneLabel = document.querySelector('.scene-name');
 const DEBUG = new URLSearchParams(location.search).has('debug');
 
 const images = { scenes: [] };
-const world = { width: 0, height: 0 };   // canvas size in CSS px; ground = world.height
+const world = { width: 0, height: 0 };   // canvas size in CSS px
+
+/* Screen y where feet and obstacles rest. */
+function getGroundY() {
+    return world.height - CONFIG.scenery.groundOffset;
+}
 
 const game = {
     state: 'ready',
@@ -119,13 +124,13 @@ function update(dt) {
 
     if (updateScenery(game.scenery, dt, game.score, true)) showSceneName();
 
-    if (playerHitsObstacle(game.player, game.obstacles, world.height)) endGame();
+    if (playerHitsObstacle(game.player, game.obstacles, getGroundY())) endGame();
 }
 
 /* ---------- render ---------- */
 
 function render() {
-    const groundY = world.height;
+    const groundY = getGroundY();
     ctx.clearRect(0, 0, world.width, world.height);
 
     drawScenery(ctx, game.scenery, images.scenes, images.clouds, game.cloudsX, world);
@@ -158,7 +163,9 @@ let lastTime = 0;
 function frame(now) {
     // Real elapsed time, capped: after a lag spike or a background tab the
     // game slows down for a moment instead of teleporting through a pipe.
-    const dt = Math.min((now - lastTime) / 1000, CONFIG.maxDelta);
+    // Never negative either: the first frame's timestamp can be slightly
+    // older than the moment the loop was started.
+    const dt = Math.max(0, Math.min((now - lastTime) / 1000, CONFIG.maxDelta));
     lastTime = now;
 
     update(dt);
@@ -171,7 +178,9 @@ function frame(now) {
 function loadImage(src) {
     return new Promise((resolve, reject) => {
         const image = new Image();
-        image.onload = () => resolve(image);
+        // decode() finishes the heavy work now, so the first time a big
+        // scenery is drawn the game does not stutter.
+        image.onload = () => image.decode().then(() => resolve(image), () => resolve(image));
         image.onerror = () => reject(new Error(`Could not load ${src}`));
         image.src = src;
     });
@@ -189,11 +198,18 @@ async function boot() {
         return;
     }
 
-    // A scenery image that fails to load is not fatal: that scene just
-    // falls back to the sky gradient.
-    images.scenes = await Promise.all(SCENES.map((scene) => (
-        scene.image ? loadImage(scene.image).catch(() => null) : null
-    )));
+    // Only the first scenery is needed to start. The others are big files,
+    // so they load in the background while the player is already playing.
+    // A scenery that is missing or still loading shows the sky gradient.
+    images.scenes = SCENES.map(() => null);
+    const loadScene = (index) => {
+        if (!SCENES[index].image) return Promise.resolve();
+        return loadImage(SCENES[index].image)
+            .then((image) => { images.scenes[index] = image; })
+            .catch(() => {});
+    };
+    await loadScene(0);
+    SCENES.slice(1).reduce((queue, scene, i) => queue.then(() => loadScene(i + 1)), Promise.resolve());
 
     resizeCanvas();
     window.addEventListener('resize', resizeCanvas);

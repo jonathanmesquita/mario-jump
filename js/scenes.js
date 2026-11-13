@@ -7,11 +7,19 @@
      image   path of the background, or null for the plain sky gradient (CSS)
      clouds  true to draw the drifting clouds on top of it
 
-   The image is scaled to the height of the board and repeated sideways,
-   so it looks best when its left and right edges match. */
+   The image is scaled to the height of the board and repeated sideways.
+   Every second copy is drawn mirrored, so the left and right edges always
+   meet themselves and no seam shows, even if the art does not tile.
+
+   The art includes its own pavement, so the scenery scrolls at the same
+   speed as the obstacles (otherwise they would slide over the floor). */
 const SCENES = [
-    { name: 'Céu aberto', image: null, clouds: true },
-    // { name: 'Avenida Paulista', image: './images/cenario-paulista.png' },
+    { name: 'Avenida Paulista', image: './images/cenario-01-masp-paulista.png' },
+    { name: 'Metrô',            image: './images/cenario-02-metro-sp.png' },
+    { name: 'Trânsito',         image: './images/cenario-03-transito-sp.png' },
+    { name: 'Paraisópolis',     image: './images/cenario-04-paraisopolis.png' },
+    { name: 'Faria Lima',       image: './images/cenario-05-faria-lima-v2.png' },
+    { name: 'The Office',       image: './images/cenario-06-the-office.png' },
 ];
 
 function createScenery() {
@@ -43,7 +51,6 @@ function updateScenery(scenery, dt, score, scrolling) {
     scenery.fade = Math.min(1, scenery.fade + dt / cfg.fadeTime);
     if (scenery.fade === 1) scenery.previous = -1;
 
-    // The background moves slower than the pipes (parallax).
     if (scrolling) scenery.offset += CONFIG.pipe.speed * cfg.scrollFactor * dt;
 
     return changed;
@@ -64,8 +71,22 @@ function drawScene(ctx, index, alpha, scenery, sceneImages, cloudsImage, cloudsX
 
     if (image) {
         const width = Math.ceil(image.width * world.height / image.height);
-        for (let x = -Math.floor(scenery.offset % width); x < world.width; x += width) {
-            ctx.drawImage(image, x, 0, width, world.height);
+
+        // Copy number i covers [i * width, (i + 1) * width) of the endless strip.
+        for (let i = Math.floor(scenery.offset / width); ; i++) {
+            const x = Math.round(i * width - scenery.offset);
+            if (x >= world.width) break;
+
+            if (i % 2 === 0) {
+                ctx.drawImage(image, x, 0, width, world.height);
+            } else {
+                // Odd copies are flipped horizontally.
+                ctx.save();
+                ctx.translate(x + width, 0);
+                ctx.scale(-1, 1);
+                ctx.drawImage(image, 0, 0, width, world.height);
+                ctx.restore();
+            }
         }
     }
 
