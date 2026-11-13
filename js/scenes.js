@@ -6,6 +6,8 @@
      name    shown on screen when the scene starts
      image   path of the background, or null for the plain sky gradient (CSS)
      clouds  true to draw the drifting clouds on top of it
+     obstacles  names from OBSTACLE_TYPES (obstacles.js) that appear here;
+                leave it out to use DEFAULT_OBSTACLES
 
    The image is scaled to the height of the board and repeated sideways.
    Every second copy is drawn mirrored, so the left and right edges always
@@ -51,7 +53,7 @@ function updateScenery(scenery, dt, score, scrolling) {
     scenery.fade = Math.min(1, scenery.fade + dt / cfg.fadeTime);
     if (scenery.fade === 1) scenery.previous = -1;
 
-    if (scrolling) scenery.offset += CONFIG.pipe.speed * cfg.scrollFactor * dt;
+    if (scrolling) scenery.offset += CONFIG.obstacles.speed * cfg.scrollFactor * dt;
 
     return changed;
 }

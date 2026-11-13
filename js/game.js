@@ -20,7 +20,7 @@ const gameOverScreen = document.querySelector('.screen-gameover');
 // Add ?debug to the URL to see the hitboxes.
 const DEBUG = new URLSearchParams(location.search).has('debug');
 
-const images = { scenes: [] };
+const images = { scenes: [], obstacles: {} };
 const world = { width: 0, height: 0 };   // canvas size in CSS px
 
 /* Screen y where feet and obstacles rest. */
@@ -171,7 +171,8 @@ function update(dt) {
     game.time += dt;
     updatePlayer(game.player, dt, input.wantsJump(), input.jumpHeld);
 
-    const cleared = updateObstacles(game.obstacles, dt, world.width, game.player.x);
+    const sceneObstacles = SCENES[game.scenery.index].obstacles || DEFAULT_OBSTACLES;
+    const cleared = updateObstacles(game.obstacles, dt, world.width, game.player.x, sceneObstacles);
     if (cleared > 0) {
         game.score += cleared;
         updateHud();
@@ -195,12 +196,12 @@ function render() {
 
     drawScenery(ctx, game.scenery, images.scenes, images.clouds, game.cloudsX, world);
 
-    drawObstacles(ctx, images.pipe, game.obstacles, groundY);
+    drawObstacles(ctx, images.obstacles, game.obstacles, groundY);
     drawPlayer(ctx, images.sprite, game.player, game.state, groundY);
 
     if (DEBUG) {
         ctx.strokeStyle = 'red';
-        const boxes = game.obstacles.pipes.map((pipe) => getPipeHitbox(pipe, groundY));
+        const boxes = game.obstacles.items.map((item) => getObstacleHitbox(item, groundY));
         boxes.push(getPlayerHitbox(game.player, groundY));
         for (const box of boxes) ctx.strokeRect(box.x, box.y, box.width, box.height);
     }
@@ -222,7 +223,7 @@ let lastTime = 0;
 
 function frame(now) {
     // Real elapsed time, capped: after a lag spike or a background tab the
-    // game slows down for a moment instead of teleporting through a pipe.
+    // game slows down for a moment instead of teleporting through an obstacle.
     // Never negative either: the first frame's timestamp can be slightly
     // older than the moment the loop was started.
     const dt = Math.max(0, Math.min((now - lastTime) / 1000, CONFIG.maxDelta));
@@ -248,11 +249,13 @@ function loadImage(src) {
 
 async function boot() {
     try {
-        [images.sprite, images.pipe, images.clouds] = await Promise.all([
+        [images.sprite, images.clouds] = await Promise.all([
             loadImage(SPRITE.src),
-            loadImage('./images/pipe.png'),
             loadImage('./images/clouds.png'),
         ]);
+        await Promise.all(Object.keys(OBSTACLE_TYPES).map(async (name) => {
+            images.obstacles[name] = await loadImage(OBSTACLE_TYPES[name].image);
+        }));
     } catch (error) {
         messageLabel.textContent = error.message;
         return;

@@ -17,19 +17,17 @@ const CONFIG = {
         hitbox: { left: -32, right: 22, height: 108 },
     },
 
-    pipe: {
-        width: 80,
-        height: 102,         // 80px wide at the image's 293:375 ratio
+    // Sizes and collision boxes of each object live in obstacles.js.
+    obstacles: {
         speed: 560,
-        minGap: 520,         // distance between consecutive pipes
+        minGap: 520,         // distance between consecutive obstacles
         maxGap: 900,
-        hitboxInset: 6,      // shrink the pipe's box a little on each side
     },
 
     scenery: {
-        pointsPerScene: 10,  // pipes to clear before the next scene
+        pointsPerScene: 10,  // obstacles to clear before the next scene
         fadeTime: 0.6,       // cross-fade between two scenes
-        scrollFactor: 1,     // background speed as a fraction of the pipe speed (1 = same floor)
+        scrollFactor: 1,     // background speed as a fraction of the obstacle speed (1 = same floor)
         groundOffset: 36,    // the pavement in the art: feet stand this far above the bottom edge
     },
 
