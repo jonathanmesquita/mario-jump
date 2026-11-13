@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -18,20 +18,46 @@
     <script src="./js/scenes.js" defer></script>
     <script src="./js/game.js" defer></script>
 
-    <title>Mario Jump</title>
+    <title>Arriba Jump</title>
 </head>
 <body>
 
     <div class="game-board">
-        <canvas class="game-canvas" aria-label="Jump game"></canvas>
+        <canvas class="game-canvas" aria-label="Jogo Arriba Jump"></canvas>
 
         <div class="hud">
-            Score: <span class="score">0</span>
-            &middot; Best: <span class="best">0</span>
+            <span class="lives" aria-label="Vidas"></span>
+            Pontos: <span class="score">0</span>
+            &middot; Recorde: <span class="best">0</span>
         </div>
 
         <div class="scene-name"></div>
         <div class="message" role="status"></div>
+
+        <!-- Main menu -->
+        <div class="screen screen-menu" hidden>
+            <h1>Arriba Jump</h1>
+            <p>Recorde: <span class="menu-best">0</span></p>
+            <button type="button" class="btn btn-play">Jogar</button>
+            <p class="hint">Espaço, ↑ ou toque para pular.<br>Segure para pular mais alto.</p>
+        </div>
+
+        <!-- Game over -->
+        <div class="screen screen-gameover" hidden>
+            <h2>GAME OVER</h2>
+            <p class="stats">
+                Pontos: <span class="final-score">0</span>
+                &middot; Recorde: <span class="final-best">0</span><br>
+                Tempo: <span class="final-time">0</span>s
+                &middot; Chegou até: <span class="final-place"></span>
+            </p>
+            <p class="new-record" hidden>Novo recorde!</p>
+            <div class="buttons">
+                <button type="button" class="btn btn-retry">Tentar novamente</button>
+                <button type="button" class="btn btn-menu">Menu principal</button>
+            </div>
+            <p class="hint">Espaço = tentar novamente &middot; Esc = menu</p>
+        </div>
     </div>
 
 </body>

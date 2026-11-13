@@ -1,13 +1,21 @@
-/* Game: owns the state machine, the score, the loop and the rendering.
+/* Game: owns the state machine, the score, the lives, the loop and the rendering.
 
-   States:  ready --press--> playing --hit a pipe--> gameover --press--> playing */
+   States:
+     menu     --play-->            playing
+     playing  --no lives left-->   gameover
+     gameover --retry-->           playing
+     gameover --main menu-->       menu */
 const board = document.querySelector('.game-board');
 const canvas = document.querySelector('.game-canvas');
 const ctx = canvas.getContext('2d');
+const hud = document.querySelector('.hud');
+const livesLabel = document.querySelector('.lives');
 const scoreLabel = document.querySelector('.score');
 const bestLabel = document.querySelector('.best');
 const messageLabel = document.querySelector('.message');
 const sceneLabel = document.querySelector('.scene-name');
+const menuScreen = document.querySelector('.screen-menu');
+const gameOverScreen = document.querySelector('.screen-gameover');
 
 // Add ?debug to the URL to see the hitboxes.
 const DEBUG = new URLSearchParams(location.search).has('debug');
@@ -21,8 +29,10 @@ function getGroundY() {
 }
 
 const game = {
-    state: 'ready',
+    state: 'menu',
     score: 0,
+    lives: CONFIG.player.lives,
+    time: 0,             // seconds played in this run
     best: loadBest(),
     gameOverTime: 0,     // seconds spent on the game over screen
     cloudsX: 0,
@@ -33,34 +43,77 @@ const game = {
 
 /* ---------- state ---------- */
 
-function startGame() {
-    // Everything that changes during a run is rebuilt here, so a restart
-    // can never inherit state from the previous run.
-    game.state = 'playing';
+/* Everything that changes during a run is rebuilt here, so a new run
+   can never inherit state from the previous one. */
+function resetRun() {
     game.score = 0;
+    game.lives = CONFIG.player.lives;
+    game.time = 0;
     game.player = createPlayer();
     game.obstacles = createObstacles();
     game.scenery = createScenery();
     input.clear();
     updateHud();
-    messageLabel.textContent = '';
-    if (SCENES.length > 1) showSceneName();
+}
+
+function showMenu() {
+    resetRun();
+    game.state = 'menu';
+    document.querySelector('.menu-best').textContent = game.best;
+    showScreen(menuScreen);
+}
+
+function startGame() {
+    resetRun();
+    game.state = 'playing';
+    showScreen(null);
+    showSceneName();
 }
 
 function endGame() {
     game.state = 'gameover';
     game.gameOverTime = 0;
-    if (game.score > game.best) {
+
+    const isRecord = game.score > game.best;
+    if (isRecord) {
         game.best = game.score;
         saveBest(game.best);
     }
     updateHud();
-    messageLabel.textContent = 'Game Over\nPress Space or tap to play again';
+
+    document.querySelector('.final-score').textContent = game.score;
+    document.querySelector('.final-best').textContent = game.best;
+    document.querySelector('.final-time').textContent = Math.round(game.time);
+    document.querySelector('.final-place').textContent = SCENES[game.scenery.index].name;
+    document.querySelector('.new-record').hidden = !isRecord;
+    showScreen(gameOverScreen);
 }
 
-function handlePress() {
-    if (game.state === 'ready') startGame();
-    else if (game.state === 'gameover' && game.gameOverTime >= CONFIG.restartDelay) startGame();
+/* Shows one full-board screen (or none) and hides the HUD behind it. */
+function showScreen(screen) {
+    menuScreen.hidden = screen !== menuScreen;
+    gameOverScreen.hidden = screen !== gameOverScreen;
+    hud.hidden = screen !== null;
+    if (screen) sceneLabel.classList.remove('show');
+    // A button that was just clicked keeps keyboard focus even after its
+    // screen is hidden, and would swallow the next Space press.
+    if (document.activeElement instanceof HTMLButtonElement) document.activeElement.blur();
+}
+
+/* The delay stops a late jump press from retrying by accident. */
+function canLeaveGameOver() {
+    return game.state === 'gameover' && game.gameOverTime >= CONFIG.restartDelay;
+}
+
+/* source is 'key' or 'pointer' (see input.js). */
+function handlePress(source) {
+    if (game.state === 'menu') startGame();
+    // On the game over screen a tap must hit a button; only keys retry directly.
+    else if (source === 'key' && canLeaveGameOver()) startGame();
+}
+
+function handleCancel() {
+    if (canLeaveGameOver()) showMenu();
 }
 
 /* Flashes the name of the current place. */
@@ -74,6 +127,7 @@ function showSceneName() {
 /* ---------- score ---------- */
 
 function updateHud() {
+    livesLabel.textContent = '♥'.repeat(game.lives) + '♡'.repeat(CONFIG.player.lives - game.lives);
     scoreLabel.textContent = game.score;
     bestLabel.textContent = game.best;
 }
@@ -103,7 +157,7 @@ function update(dt) {
     game.cloudsX -= CONFIG.clouds.speed * dt;
     if (game.cloudsX < -CONFIG.clouds.width) game.cloudsX = world.width;
 
-    if (game.state === 'ready') {
+    if (game.state === 'menu') {
         game.player.animTime += dt;   // idle animation only
         return;
     }
@@ -114,7 +168,8 @@ function update(dt) {
         return;
     }
 
-    updatePlayer(game.player, dt, input.wantsJump());
+    game.time += dt;
+    updatePlayer(game.player, dt, input.wantsJump(), input.jumpHeld);
 
     const cleared = updateObstacles(game.obstacles, dt, world.width, game.player.x);
     if (cleared > 0) {
@@ -124,7 +179,12 @@ function update(dt) {
 
     if (updateScenery(game.scenery, dt, game.score, true)) showSceneName();
 
-    if (playerHitsObstacle(game.player, game.obstacles, getGroundY())) endGame();
+    if (game.player.invulnerable === 0 && playerHitsObstacle(game.player, game.obstacles, getGroundY())) {
+        game.lives -= 1;
+        updateHud();
+        if (game.lives === 0) endGame();
+        else hurtPlayer(game.player);   // keeps running, blinking for a moment
+    }
 }
 
 /* ---------- render ---------- */
@@ -217,8 +277,11 @@ async function boot() {
     game.cloudsX = world.width;
     input.init(board);
     input.onPress = handlePress;
-    updateHud();
-    messageLabel.textContent = 'Press Space or tap to start';
+    input.onCancel = handleCancel;
+    document.querySelector('.btn-play').addEventListener('click', startGame);
+    document.querySelector('.btn-retry').addEventListener('click', () => { if (canLeaveGameOver()) startGame(); });
+    document.querySelector('.btn-menu').addEventListener('click', () => { if (canLeaveGameOver()) showMenu(); });
+    showMenu();
 
     lastTime = performance.now();
     requestAnimationFrame(frame);

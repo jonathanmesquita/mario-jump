@@ -8,10 +8,12 @@ function createPlayer() {
         onGround: true,
         animTime: 0,         // drives the looping idle / run animations
         landTimer: 0,        // > 0 right after touching down
+        hurtTimer: 0,        // > 0 while the hurt frame is shown
+        invulnerable: 0,     // > 0 after a hit: blinking, cannot be hit
     };
 }
 
-function updatePlayer(player, dt, wantsJump) {
+function updatePlayer(player, dt, wantsJump, jumpHeld) {
     const cfg = CONFIG.player;
 
     // Jumping is only possible from the ground, so key spam can't
@@ -20,6 +22,12 @@ function updatePlayer(player, dt, wantsJump) {
         player.velocityY = cfg.jumpSpeed;
         player.onGround = false;
         input.jumpBuffer = 0;
+    }
+
+    // Variable jump height: letting go of the button while still rising
+    // cuts the jump short. Hold = high jump, tap = short hop.
+    if (!player.onGround && !jumpHeld && player.velocityY > cfg.jumpCutSpeed) {
+        player.velocityY = cfg.jumpCutSpeed;
     }
 
     if (!player.onGround) {
@@ -35,14 +43,16 @@ function updatePlayer(player, dt, wantsJump) {
     }
 
     player.landTimer = Math.max(0, player.landTimer - dt);
+    player.hurtTimer = Math.max(0, player.hurtTimer - dt);
+    player.invulnerable = Math.max(0, player.invulnerable - dt);
     player.animTime += dt;
 }
 
-/* state is the game state: 'ready' | 'playing' | 'gameover'. */
+/* state is the game state: 'menu' | 'playing' | 'gameover'. */
 function getPlayerFrame(player, state) {
     const frames = SPRITE.frames;
 
-    if (state === 'gameover') return frames.hurt[0];
+    if (state === 'gameover' || player.hurtTimer > 0) return frames.hurt[0];
 
     if (!player.onGround) {
         // Pick the jump pose from the vertical speed: rising, apex, falling.
@@ -52,7 +62,7 @@ function getPlayerFrame(player, state) {
         return frames.jump[2];
     }
 
-    if (state === 'ready') return loopFrame(frames.idle, SPRITE.fps.idle, player.animTime);
+    if (state === 'menu') return loopFrame(frames.idle, SPRITE.fps.idle, player.animTime);
     if (player.landTimer > 0) return frames.jump[4];
     return loopFrame(frames.run, SPRITE.fps.run, player.animTime);
 }
@@ -72,6 +82,14 @@ function getPlayerHitbox(player, groundY) {
     };
 }
 
+/* Called when the player touches an obstacle while vulnerable. */
+function hurtPlayer(player) {
+    player.hurtTimer = CONFIG.player.hurtTime;
+    player.invulnerable = CONFIG.player.invulnerableTime;
+}
+
 function drawPlayer(ctx, image, player, state, groundY) {
+    // Blink while invulnerable so the player can see they are safe.
+    if (state === 'playing' && player.invulnerable > 0 && Math.floor(player.invulnerable * 10) % 2 === 1) return;
     drawSpriteFrame(ctx, image, getPlayerFrame(player, state), player.x, groundY - player.y);
 }
