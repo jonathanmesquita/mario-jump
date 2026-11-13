@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -10,6 +10,7 @@
          index.html directly from disk. Order matters: each file only uses
          what the files above it define. -->
     <script src="./js/config.js" defer></script>
+    <script src="./js/i18n.js" defer></script>
     <script src="./js/input.js" defer></script>
     <script src="./js/sprite.js" defer></script>
     <script src="./js/player.js" defer></script>
@@ -18,20 +19,49 @@
     <script src="./js/scenes.js" defer></script>
     <script src="./js/game.js" defer></script>
 
-    <title>Mario Jump</title>
+    <title>Arriba Jump</title>
 </head>
 <body>
 
+    <!-- Texts come from js/i18n.js (data-i18n = key). The Portuguese
+         written here is only what shows before the script runs. -->
     <div class="game-board">
-        <canvas class="game-canvas" aria-label="Jump game"></canvas>
+        <canvas class="game-canvas" data-i18n-label="gameLabel" aria-label="Jogo Arriba Jump"></canvas>
 
         <div class="hud">
-            Score: <span class="score">0</span>
-            &middot; Best: <span class="best">0</span>
+            <span class="lives" data-i18n-label="lives" aria-label="Vidas"></span>
+            <span data-i18n="score">Pontos</span>: <span class="score">0</span>
+            &middot; <span data-i18n="best">Recorde</span>: <span class="best">0</span>
         </div>
 
         <div class="scene-name"></div>
         <div class="message" role="status"></div>
+
+        <!-- Main menu -->
+        <div class="screen screen-menu" hidden>
+            <h1>Arriba Jump</h1>
+            <p><span data-i18n="best">Recorde</span>: <span class="menu-best">0</span></p>
+            <button type="button" class="btn btn-play" data-i18n="play">Jogar</button>
+            <p class="hint" data-i18n="menuHint">Espaço, ↑ ou toque para pular.</p>
+            <div class="languages" role="group" data-i18n-label="language" aria-label="Idioma"></div>
+        </div>
+
+        <!-- Game over -->
+        <div class="screen screen-gameover" hidden>
+            <h2>GAME OVER</h2>
+            <p class="stats">
+                <span data-i18n="score">Pontos</span>: <span class="final-score">0</span>
+                &middot; <span data-i18n="best">Recorde</span>: <span class="final-best">0</span><br>
+                <span data-i18n="time">Tempo</span>: <span class="final-time">0</span>s
+                &middot; <span data-i18n="reached">Chegou até</span>: <span class="final-place"></span>
+            </p>
+            <p class="new-record" data-i18n="newRecord" hidden>Novo recorde!</p>
+            <div class="buttons">
+                <button type="button" class="btn btn-retry" data-i18n="retry">Tentar novamente</button>
+                <button type="button" class="btn btn-menu" data-i18n="mainMenu">Menu principal</button>
+            </div>
+            <p class="hint" data-i18n="gameOverHint">Espaço = tentar novamente</p>
+        </div>
     </div>
 
 </body>

@@ -1,4 +1,4 @@
-/* Sprite sheet description for images/sprite-arriba-jump-01.PNG (1402x1122).
+/* Sprite sheet description for images/personagem/sprite-arriba-jump-01.png (1402x1122).
 
    The sheet is a 5x4 layout, but the frames are NOT on a uniform grid:
    they differ in size and spacing. So each frame is listed explicitly as
@@ -8,7 +8,7 @@
    edge of the box is the feet. Drawing every frame with the anchor at the
    same screen point keeps the character from jittering between frames. */
 const SPRITE = {
-    src: './images/sprite-arriba-jump-01.PNG',   // note the upper-case extension
+    src: './images/personagem/sprite-arriba-jump-01.png',
     scale: 0.6,                                  // sheet px -> screen px
 
     frames: {

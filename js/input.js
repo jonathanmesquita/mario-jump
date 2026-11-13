@@ -5,12 +5,13 @@ const JUMP_KEYS = ['Space', 'ArrowUp', 'KeyW'];
 const input = {
     jumpHeld: false,   // true while a jump key / pointer is down
     jumpBuffer: 0,     // seconds left in which a recent press still counts
-    onPress: null,     // set by game.js: called once per physical press
+    onPress: null,     // set by game.js: called once per physical press, with 'key' or 'pointer'
+    onCancel: null,    // set by game.js: called when Escape is pressed
 
-    press() {
+    press(source) {
         this.jumpHeld = true;
         this.jumpBuffer = CONFIG.player.jumpBuffer;
-        if (this.onPress) this.onPress();
+        if (this.onPress) this.onPress(source);
     },
 
     release() {
@@ -34,9 +35,15 @@ const input = {
     /* Listeners are attached exactly once, for the lifetime of the page. */
     init(target) {
         document.addEventListener('keydown', (event) => {
+            if (event.code === 'Escape') {
+                if (this.onCancel) this.onCancel();
+                return;
+            }
             if (!JUMP_KEYS.includes(event.code)) return;
-            event.preventDefault();          // Space / ArrowUp would scroll the page
-            if (!event.repeat) this.press(); // ignore OS key auto-repeat
+            // A focused button keeps its normal keyboard behaviour.
+            if (event.target.closest('button')) return;
+            event.preventDefault();                 // Space / ArrowUp would scroll the page
+            if (!event.repeat) this.press('key');   // ignore OS key auto-repeat
         });
 
         document.addEventListener('keyup', (event) => {
@@ -44,8 +51,9 @@ const input = {
         });
 
         target.addEventListener('pointerdown', (event) => {
+            if (event.target.closest('button')) return;   // buttons handle their own clicks
             event.preventDefault();
-            this.press();
+            this.press('pointer');
         });
         window.addEventListener('pointerup', () => this.release());
         window.addEventListener('pointercancel', () => this.release());

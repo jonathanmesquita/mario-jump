@@ -11,5 +11,5 @@ function boxesOverlap(a, b) {
 
 function playerHitsObstacle(player, obstacles, groundY) {
     const playerBox = getPlayerHitbox(player, groundY);
-    return obstacles.pipes.some((pipe) => boxesOverlap(playerBox, getPipeHitbox(pipe, groundY)));
+    return obstacles.items.some((item) => boxesOverlap(playerBox, getObstacleHitbox(item, groundY)));
 }
