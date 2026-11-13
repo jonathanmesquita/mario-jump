@@ -1,6 +1,6 @@
 /* Scenery system: the background changes as the score grows.
 
-   To add a place, drop its image in images/ and add one line to SCENES.
+   To add a place, drop its image in images/cenarios/ and add one line to SCENES.
    Scenes are visited in this order and loop back to the first one.
 
      name    shown on screen when the scene starts
@@ -16,12 +16,12 @@
    The art includes its own pavement, so the scenery scrolls at the same
    speed as the obstacles (otherwise they would slide over the floor). */
 const SCENES = [
-    { name: 'Avenida Paulista', image: './images/cenario-01-masp-paulista.png' },
-    { name: 'Metrô',            image: './images/cenario-02-metro-sp.png' },
-    { name: 'Trânsito',         image: './images/cenario-03-transito-sp.png' },
-    { name: 'Paraisópolis',     image: './images/cenario-04-paraisopolis.png' },
-    { name: 'Faria Lima',       image: './images/cenario-05-faria-lima-v2.png' },
-    { name: 'The Office',       image: './images/cenario-06-the-office.png' },
+    { name: 'Avenida Paulista', image: './images/cenarios/cenario-01-masp-paulista.png' },
+    { name: 'Metrô',            image: './images/cenarios/cenario-02-metro-sp.png' },
+    { name: 'Trânsito',         image: './images/cenarios/cenario-03-transito-sp.png' },
+    { name: 'Paraisópolis',     image: './images/cenarios/cenario-04-paraisopolis.png' },
+    { name: 'Faria Lima',       image: './images/cenarios/cenario-05-faria-lima-v2.png' },
+    { name: 'The Office',       image: './images/cenarios/cenario-06-the-office.png' },
 ];
 
 function createScenery() {

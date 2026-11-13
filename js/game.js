@@ -253,7 +253,7 @@ async function boot() {
     try {
         [images.sprite, images.clouds] = await Promise.all([
             loadImage(SPRITE.src),
-            loadImage('./images/clouds.png'),
+            loadImage('./images/cenarios/clouds.png'),
         ]);
         await Promise.all(Object.keys(OBSTACLE_TYPES).map(async (name) => {
             images.obstacles[name] = await loadImage(OBSTACLE_TYPES[name].image);

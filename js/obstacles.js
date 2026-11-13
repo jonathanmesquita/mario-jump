@@ -1,6 +1,6 @@
 /* Obstacle system: objects that scroll right-to-left at a constant speed.
 
-   To add an object, drop its image in images/ and add one entry to
+   To add an object, drop its image in images/obstaculos/ and add one entry to
    OBSTACLE_TYPES, then list its name in the scenes where it should
    appear (the "obstacles" field of SCENES, in scenes.js).
 
@@ -11,7 +11,7 @@
      inset   how much the collision box is shrunk on the left, right and
              top, so touching a transparent corner does not count as a hit */
 const OBSTACLE_TYPES = {
-    pipe: { image: './images/pipe.png', width: 80, height: 102, inset: 6 },
+    pipe: { image: './images/obstaculos/pipe.png', width: 80, height: 102, inset: 6 },
 };
 
 /* Used by scenes that do not list their own obstacles. */
