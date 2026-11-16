@@ -122,16 +122,26 @@ function creditsHeight(credits, scale) {
     }, 0);
 }
 
+/* Distance the roll travels, from entering at the bottom to leaving at the top. */
+function creditsDistance(credits, world) {
+    return world.height - CONFIG.credits.bottomMargin + creditsHeight(credits, creditScale(world));
+}
+
+/* Scroll speed in px/s, slowed down if needed to respect the minimum duration. */
+function creditsSpeed(credits, world) {
+    const cfg = CONFIG.credits;
+    return Math.min(cfg.speed, creditsDistance(credits, world) / cfg.minDuration);
+}
+
 function updateCredits(credits, dt, world) {
     credits.time += dt;
     const cfg = CONFIG.credits;
 
     if (credits.reduced) {
         // One block per page, no scrolling.
-        credits.done = credits.time >= CREDITS.length * cfg.pageTime;
+        credits.done = credits.time >= Math.max(cfg.minDuration, CREDITS.length * cfg.pageTime);
     } else {
-        const distance = world.height - cfg.bottomMargin + creditsHeight(credits, creditScale(world));
-        credits.done = credits.time * cfg.speed >= distance;
+        credits.done = credits.time * creditsSpeed(credits, world) >= creditsDistance(credits, world);
     }
 }
 
@@ -161,7 +171,7 @@ function drawCredits(ctx, credits, world) {
         const height = creditsHeight({ lines }, scale);
         y = (areaHeight - height) / 2;
     } else {
-        y = areaHeight - credits.time * CONFIG.credits.speed;
+        y = areaHeight - credits.time * creditsSpeed(credits, world);
     }
 
     for (const line of lines) {

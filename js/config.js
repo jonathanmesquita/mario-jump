@@ -42,10 +42,11 @@ const CONFIG = {
     },
 
     credits: {
-        speed: 55,           // scroll speed of the credits
+        speed: 140,          // scroll speed of the credits (about 10s for the whole roll)
+        minDuration: 5,      // the roll never takes less than this, however short the list is
         fadeTime: 0.6,       // the frozen game fades to black behind them
         bottomMargin: 64,    // strip at the bottom kept free for the skip button
-        pageTime: 2.8,       // reduced motion: seconds per page instead of scrolling
+        pageTime: 1.5,       // reduced motion: seconds per page instead of scrolling
     },
 
     ending: {
