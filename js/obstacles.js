@@ -9,9 +9,17 @@
      width   size on screen, in px
      height
      inset   how much the collision box is shrunk on the left, right and
-             top, so touching a transparent corner does not count as a hit */
+             top, so touching a transparent corner does not count as a hit
+     sink    optional: px the object is drawn below the ground line
+             (the pothole lies in the floor instead of standing on it) */
 const OBSTACLE_TYPES = {
-    pipe: { image: './images/obstaculos/pipe.png', width: 80, height: 102, inset: 6 },
+    pipe:       { image: './images/obstaculos/pipe.png',       width: 80, height: 102, inset: 6 },
+    cone:       { image: './images/obstaculos/cone.png',       width: 56, height: 72,  inset: 8 },
+    mochila:    { image: './images/obstaculos/mochila.png',    width: 64, height: 68,  inset: 6 },
+    impressora: { image: './images/obstaculos/impressora.png', width: 80, height: 60,  inset: 6 },
+    caixas:     { image: './images/obstaculos/caixas.png',     width: 72, height: 96,  inset: 6 },
+    patinete:   { image: './images/obstaculos/patinete.png',   width: 96, height: 80,  inset: 10 },
+    buraco:     { image: './images/obstaculos/buraco.png',     width: 96, height: 24,  inset: 10, sink: 14 },
 };
 
 /* Used by scenes that do not list their own obstacles. */
@@ -46,19 +54,31 @@ function updateObstacles(obstacles, dt, worldWidth, playerX, typeNames) {
 
     obstacles.distanceToNext -= step;
     if (obstacles.distanceToNext <= 0) {
-        const type = typeNames[Math.floor(Math.random() * typeNames.length)];
-        obstacles.items.push({ x: worldWidth, type, passed: false });
+        obstacles.items.push({ x: worldWidth, type: pickObstacleType(typeNames), passed: false });
         obstacles.distanceToNext = cfg.minGap + Math.random() * (cfg.maxGap - cfg.minGap);
     }
 
     return cleared;
 }
 
+function pickObstacleType(typeNames) {
+    return typeNames[Math.floor(Math.random() * typeNames.length)];
+}
+
+/* Called when the scenery changes: objects still far from the player
+   (beyond minX) become objects of the new scene, so a printer does not
+   show up on the street. The ones about to be jumped are left alone. */
+function retypeObstacles(obstacles, typeNames, minX) {
+    for (const item of obstacles.items) {
+        if (item.x > minX && !typeNames.includes(item.type)) item.type = pickObstacleType(typeNames);
+    }
+}
+
 function getObstacleHitbox(item, groundY) {
     const type = OBSTACLE_TYPES[item.type];
     return {
         x: item.x + type.inset,
-        y: groundY - type.height + type.inset,
+        y: groundY + (type.sink || 0) - type.height + type.inset,
         width: type.width - type.inset * 2,
         height: type.height - type.inset,
     };
@@ -69,6 +89,7 @@ function drawObstacles(ctx, obstacleImages, obstacles, groundY) {
     for (const item of obstacles.items) {
         const type = OBSTACLE_TYPES[item.type];
         const image = obstacleImages[item.type];
-        if (image) ctx.drawImage(image, Math.round(item.x), groundY - type.height, type.width, type.height);
+        const y = groundY + (type.sink || 0) - type.height;
+        if (image) ctx.drawImage(image, Math.round(item.x), y, type.width, type.height);
     }
 }

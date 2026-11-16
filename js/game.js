@@ -116,6 +116,11 @@ function handleCancel() {
     if (canLeaveGameOver()) showMenu();
 }
 
+/* Names of the objects that may appear in the current scene. */
+function getSceneObstacles() {
+    return SCENES[game.scenery.index].obstacles || DEFAULT_OBSTACLES;
+}
+
 /* Flashes the name of the current place. */
 function showSceneName() {
     sceneLabel.textContent = SCENES[game.scenery.index].name;
@@ -171,14 +176,16 @@ function update(dt) {
     game.time += dt;
     updatePlayer(game.player, dt, input.wantsJump(), input.jumpHeld);
 
-    const sceneObstacles = SCENES[game.scenery.index].obstacles || DEFAULT_OBSTACLES;
-    const cleared = updateObstacles(game.obstacles, dt, world.width, game.player.x, sceneObstacles);
+    const cleared = updateObstacles(game.obstacles, dt, world.width, game.player.x, getSceneObstacles());
     if (cleared > 0) {
         game.score += cleared;
         updateHud();
     }
 
-    if (updateScenery(game.scenery, dt, game.score, true)) showSceneName();
+    if (updateScenery(game.scenery, dt, game.score, true)) {
+        showSceneName();
+        retypeObstacles(game.obstacles, getSceneObstacles(), game.player.x + 250);
+    }
 
     if (game.player.invulnerable === 0 && playerHitsObstacle(game.player, game.obstacles, getGroundY())) {
         game.lives -= 1;
