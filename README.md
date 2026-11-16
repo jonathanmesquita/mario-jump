@@ -2,13 +2,13 @@
 
 Jogo de corrida e pulo em pixel art, feito só com HTML, CSS e JavaScript (sem frameworks). O personagem, de poncho verde e sombrero, atravessa São Paulo pulando os obstáculos de cada lugar.
 
-**Jogar:** https://jonathanmesquita.github.io/arriba-jump/
+**Jogar:** https://arriba-jump.jm.dev.br/
 
 | :placard: Vitrine.Dev |     |
 | -------------  | --- |
 | :sparkles: Nome        | **Arriba Jump**
 | :label: Tecnologias | javascript, html, css
-| :rocket: URL         | [Jogar Arriba Jump](https://jonathanmesquita.github.io/arriba-jump/)
+| :rocket: URL         | [Jogar Arriba Jump](https://arriba-jump.jm.dev.br/)
 | :fire: Desafio     | [Manual do Dev - Jogo Simples usando JavaScript e HTML](https://www.youtube.com/watch?v=r9buAwVBDhA)
 
 <!-- Inserir imagem com a #vitrinedev ao final do link -->
