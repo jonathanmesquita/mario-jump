@@ -33,6 +33,8 @@ O botão "Placar" no menu abre o Hall da Fama, com três classificações por pe
 
 Desempate da temporada: maior partida no mês e, depois, quem chegou primeiro à pontuação. O placar fica salvo só neste navegador (`localStorage`, chave `arribaJumpLeaderboardV1`); não é um ranking online.
 
+Para guardar uma cópia, use "Salvar placar (.txt)" na tela do placar: o arquivo tem as classificações em texto e, no final, os dados para restaurar. "Carregar placar" lê esse arquivo e substitui o placar do navegador, o que serve para levar o placar para outro computador ou recuperá-lo depois de limpar o navegador.
+
 ## Configurações
 
 O botão de engrenagem, no canto da tela, abre as configurações a partir do menu:

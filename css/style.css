@@ -877,6 +877,17 @@ button.board-row:hover {
     border: 2px solid #ffd95a;
 }
 
+.board-files {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 8px;
+}
+
+.board-file-status:empty {
+    display: none;
+}
+
 .board-note {
     color: #ffd95a;
 }

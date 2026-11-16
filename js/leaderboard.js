@@ -24,6 +24,10 @@ const LEADERBOARD_KEY = 'arribaJumpLeaderboardV1';
 const SEASON_TIME_ZONE = 'America/Sao_Paulo';
 const RECENT_RUN_IDS = 200;
 
+// Markers around the raw data at the end of a saved .txt file.
+const EXPORT_DATA_START = '--- ARRIBA JUMP DATA v1 (do not edit) ---';
+const EXPORT_DATA_END = '--- END ---';
+
 function emptyLeaderboard() {
     return { version: 1, characters: {}, seasons: {}, champions: {}, recentRunIds: [] };
 }
@@ -60,42 +64,70 @@ const leaderboard = {
 
     /* Reads the saved board. Anything missing or broken is dropped instead of
        stopping the game. */
-    load() {
+    /* Turns saved data into a clean board: anything missing or broken is
+       dropped instead of stopping the game. Returns null if it is not a
+       version 1 board at all. */
+    parse(saved) {
+        if (!saved || saved.version !== 1) return null;
         const data = emptyLeaderboard();
-        try {
-            const saved = JSON.parse(localStorage.getItem(LEADERBOARD_KEY));
-            if (saved && saved.version === 1) {
-                const isCount = (value) => Number.isInteger(value) && value >= 0;
-                for (const [id, entry] of Object.entries(saved.characters || {})) {
-                    if (entry && isCount(entry.total) && isCount(entry.best) && isCount(entry.runs)) {
-                        data.characters[id] = {
-                            total: entry.total, best: entry.best, runs: entry.runs,
-                            wins: isCount(entry.wins) ? entry.wins : 0,
-                            bestAt: typeof entry.bestAt === 'string' ? entry.bestAt : '',
-                        };
-                    }
-                }
-                for (const [season, perCharacter] of Object.entries(saved.seasons || {})) {
-                    if (!/^\d{4}-\d{2}$/.test(season) || typeof perCharacter !== 'object') continue;
-                    for (const [id, days] of Object.entries(perCharacter || {})) {
-                        for (const [day, entry] of Object.entries(days || {})) {
-                            if (!/^\d{4}-\d{2}-\d{2}$/.test(day) || !entry || !isCount(entry.score)) continue;
-                            ((data.seasons[season] ||= {})[id] ||= {})[day] = { score: entry.score, at: String(entry.at || '') };
-                        }
-                    }
-                }
-                for (const [season, champion] of Object.entries(saved.champions || {})) {
-                    if (champion && typeof champion.characterId === 'string') data.champions[season] = champion;
-                }
-                if (Array.isArray(saved.recentRunIds)) {
-                    data.recentRunIds = saved.recentRunIds.filter((id) => typeof id === 'string').slice(-RECENT_RUN_IDS);
+        const isCount = (value) => Number.isInteger(value) && value >= 0;
+        for (const [id, entry] of Object.entries(saved.characters || {})) {
+            if (entry && isCount(entry.total) && isCount(entry.best) && isCount(entry.runs)) {
+                data.characters[id] = {
+                    total: entry.total, best: entry.best, runs: entry.runs,
+                    wins: isCount(entry.wins) ? entry.wins : 0,
+                    bestAt: typeof entry.bestAt === 'string' ? entry.bestAt : '',
+                };
+            }
+        }
+        for (const [season, perCharacter] of Object.entries(saved.seasons || {})) {
+            if (!/^\d{4}-\d{2}$/.test(season) || !perCharacter || typeof perCharacter !== 'object') continue;
+            for (const [id, days] of Object.entries(perCharacter)) {
+                for (const [day, entry] of Object.entries(days || {})) {
+                    if (!/^\d{4}-\d{2}-\d{2}$/.test(day) || !entry || !isCount(entry.score)) continue;
+                    ((data.seasons[season] ||= {})[id] ||= {})[day] = { score: entry.score, at: String(entry.at || '') };
                 }
             }
+        }
+        for (const [season, champion] of Object.entries(saved.champions || {})) {
+            if (champion && typeof champion.characterId === 'string') data.champions[season] = champion;
+        }
+        if (Array.isArray(saved.recentRunIds)) {
+            data.recentRunIds = saved.recentRunIds.filter((id) => typeof id === 'string').slice(-RECENT_RUN_IDS);
+        }
+        return data;
+    },
+
+    /* Reads the saved board from this browser. */
+    load() {
+        let data = null;
+        try {
+            data = this.parse(JSON.parse(localStorage.getItem(LEADERBOARD_KEY)));
         } catch (error) {
             /* corrupted or blocked: start from an empty board */
         }
+        this.data = data || emptyLeaderboard();
+        this.closeFinishedSeasons();
+    },
+
+    /* Replaces the board with one read from a saved file (see exportData).
+       Throws if the file holds no valid board. */
+    importData(text) {
+        const start = text.indexOf(EXPORT_DATA_START);
+        const end = text.indexOf(EXPORT_DATA_END);
+        const json = start >= 0 && end > start
+            ? text.slice(start + EXPORT_DATA_START.length, end)
+            : text;   // a plain .json file works too
+        const data = this.parse(JSON.parse(json.trim()));
+        if (!data) throw new Error('not a leaderboard');
         this.data = data;
         this.closeFinishedSeasons();
+        this.save();
+    },
+
+    /* The raw board, between markers, for the end of a saved file. */
+    exportData() {
+        return `${EXPORT_DATA_START}\n${JSON.stringify(this.data)}\n${EXPORT_DATA_END}\n`;
     },
 
     save() {
