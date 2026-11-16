@@ -178,6 +178,33 @@
     border-color: #1d3b1f;
 }
 
+/* Small secondary action under the main buttons ("Trocar personagem"). */
+.btn-small {
+    min-height: 36px;
+    padding: 6px 14px;
+    font: bold 14px/1 "Courier New", monospace;
+    color: #fff;
+    background: rgba(0, 0, 0, 0.45);
+    border: 2px solid #fff;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+.btn-small:hover,
+.btn-small:focus-visible {
+    background: rgba(255, 255, 255, 0.25);
+    outline: 2px solid #fff;
+    outline-offset: 2px;
+}
+
+.current-character {
+    font-size: 15px;
+}
+
+.current-character-name {
+    color: #ffd95a;
+}
+
 .buttons {
     display: flex;
     flex-wrap: wrap;

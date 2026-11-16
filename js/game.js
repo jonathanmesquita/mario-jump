@@ -80,10 +80,16 @@ function showMenu() {
     resetRun();
     game.state = 'menu';
     document.querySelector('.menu-best').textContent = game.best;
+    document.querySelector('.current-character-name').textContent = roster.displayName(roster.get(roster.selected));
     showScreen(menuScreen);
 }
 
 /* Character selection, between the menu and the game. */
+/* "Trocar personagem" on the game over and ending screens. */
+function changeCharacter() {
+    if (canLeaveGameOver() || canAct('ending')) openCharacterSelect();
+}
+
 function openCharacterSelect() {
     game.state = 'select';
     characterSelect.message = '';
@@ -105,17 +111,28 @@ function loadCharacterSheet(id) {
 }
 
 /* Jogar on the selection screen: make sure the sheet is there, then start. */
+/* Starts a run with the chosen character, from the selection screen or
+   straight from the menu. */
 async function startWithSelectedCharacter() {
-    const character = roster.get(roster.selected);
-    if (game.state !== 'select' || !roster.canPlay(character)) return;
+    const from = game.state;
+    if (from !== 'select' && from !== 'menu') return;
+    let character = roster.get(roster.selected);
+    if (!roster.canPlay(character)) {
+        if (from === 'select') return;   // "coming soon": the button is disabled anyway
+        character = roster.get(DEFAULT_CHARACTER);
+        roster.selected = character.id;
+    }
     try {
         await loadCharacterSheet(character.id);
     } catch (error) {
-        characterSelect.message = `${i18n.t('loadError')} ${character.name}`;
-        characterSelect.refresh();
-        return;
+        if (from === 'select') {
+            characterSelect.message = `${i18n.t('loadError')} ${character.name}`;
+            characterSelect.refresh();
+            return;
+        }
+        roster.selected = DEFAULT_CHARACTER;   // from the menu: fall back to Arriba
     }
-    if (game.state === 'select') startGame();
+    if (game.state === from) startGame();
 }
 
 /* The character drawn on screen: the one of this run, or while choosing,
@@ -284,7 +301,7 @@ function canAct(state) {
 
 /* source is 'key' or 'pointer' (see input.js). */
 function handlePress(source) {
-    if (game.state === 'menu') openCharacterSelect();
+    if (game.state === 'menu') startWithSelectedCharacter();
     else if (canAct('victory')) startCredits();
     // On the screens below a tap must hit a button; only keys act directly.
     else if (source !== 'key') return;
@@ -543,7 +560,11 @@ async function boot() {
     }
     // Leaving the tab in the middle of a run pauses it.
     document.addEventListener('visibilitychange', () => { if (document.hidden && game.state === 'playing') openSettings(); });
-    document.querySelector('.btn-play').addEventListener('click', openCharacterSelect);
+    document.querySelector('.btn-play').addEventListener('click', startWithSelectedCharacter);
+    document.querySelector('.btn-characters').addEventListener('click', openCharacterSelect);
+    for (const button of document.querySelectorAll('.btn-change-character')) {
+        button.addEventListener('click', changeCharacter);
+    }
     document.querySelector('.btn-select-play').addEventListener('click', startWithSelectedCharacter);
     document.querySelector('.btn-select-back').addEventListener('click', showMenu);
     document.querySelector('.btn-retry').addEventListener('click', () => { if (canLeaveGameOver()) startGame(); });
