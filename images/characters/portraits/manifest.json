@@ -61,6 +61,14 @@
       "initiallyUnlocked": false,
       "portrait": "portrait-ananias-01.png",
       "gameplaySprite": "images/characters/animations/sprite-ananias-animacao-02.png"
+    },
+    {
+      "id": "chefe",
+      "name": "?",
+      "status": "secret",
+      "initiallyUnlocked": false,
+      "portrait": "portrait-chefe-01.png",
+      "gameplaySprite": null
     }
   ]
 }

@@ -183,7 +183,7 @@ function getSpeedFactor() {
 function winGame() {
     playSound('win');
     roster.completeScene(game.scenery.index);   // the last scene counts as completed too
-    if (settings.mode === 'campaign') roster.winCampaign();   // reveals the secret boss
+    if (settings.mode === 'campaign') roster.winCampaign();   // recorded for revealing the boss later
     game.state = 'victory';
     game.stateTime = 0;
     preloadEnding(game.character);
