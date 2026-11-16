@@ -13,7 +13,6 @@
      sink    optional: px the object is drawn below the ground line
              (the pothole lies in the floor instead of standing on it) */
 const OBSTACLE_TYPES = {
-    pipe:       { image: './images/obstaculos/pipe.png',       width: 80, height: 102, inset: 6 },
     cone:       { image: './images/obstaculos/cone.png',       width: 56, height: 72,  inset: 8 },
     mochila:    { image: './images/obstaculos/mochila.png',    width: 64, height: 68,  inset: 6 },
     impressora: { image: './images/obstaculos/impressora.png', width: 80, height: 60,  inset: 6 },
@@ -23,7 +22,7 @@ const OBSTACLE_TYPES = {
 };
 
 /* Used by scenes that do not list their own obstacles. */
-const DEFAULT_OBSTACLES = ['pipe'];
+const DEFAULT_OBSTACLES = ['cone'];
 
 /* Each item is { x, type, passed }: x is its left edge in screen px and
    type is a key of OBSTACLE_TYPES. */
@@ -35,10 +34,11 @@ function createObstacles() {
 }
 
 /* Moves the obstacles and returns how many the player cleared this step.
-   typeNames lists what may spawn now (the current scene's obstacles). */
-function updateObstacles(obstacles, dt, worldWidth, playerX, typeNames) {
+   typeNames lists what may spawn now (the current scene's obstacles).
+   speedFactor is 1 normally and grows with the "increasing difficulty" setting. */
+function updateObstacles(obstacles, dt, worldWidth, playerX, typeNames, speedFactor) {
     const cfg = CONFIG.obstacles;
-    const step = cfg.speed * dt;
+    const step = cfg.speed * speedFactor * dt;
     let cleared = 0;
 
     for (const item of obstacles.items) {
@@ -55,7 +55,9 @@ function updateObstacles(obstacles, dt, worldWidth, playerX, typeNames) {
     obstacles.distanceToNext -= step;
     if (obstacles.distanceToNext <= 0) {
         obstacles.items.push({ x: worldWidth, type: pickObstacleType(typeNames), passed: false });
-        obstacles.distanceToNext = cfg.minGap + Math.random() * (cfg.maxGap - cfg.minGap);
+        // Faster game = longer gaps, or two obstacles could not be jumped in a row.
+        const gapFactor = Math.pow(speedFactor, CONFIG.difficulty.gapPower);
+        obstacles.distanceToNext = (cfg.minGap + Math.random() * (cfg.maxGap - cfg.minGap)) * gapFactor;
     }
 
     return cleared;

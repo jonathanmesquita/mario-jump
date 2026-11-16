@@ -5,7 +5,6 @@
 
      name    shown on screen when the scene starts
      image   path of the background, or null for the plain sky gradient (CSS)
-     clouds  true to draw the drifting clouds on top of it
      obstacles  names from OBSTACLE_TYPES (obstacles.js) that appear here;
                 leave it out to use DEFAULT_OBSTACLES
 
@@ -37,8 +36,9 @@ function sceneIndexForScore(score) {
     return Math.floor(score / CONFIG.scenery.pointsPerScene) % SCENES.length;
 }
 
-/* Returns true on the frame the scene changes. */
-function updateScenery(scenery, dt, score, scrolling) {
+/* scrollSpeed is the obstacle speed in px/s (0 while nothing moves).
+   Returns true on the frame the scene changes. */
+function updateScenery(scenery, dt, score, scrollSpeed) {
     const cfg = CONFIG.scenery;
     let changed = false;
 
@@ -53,21 +53,21 @@ function updateScenery(scenery, dt, score, scrolling) {
     scenery.fade = Math.min(1, scenery.fade + dt / cfg.fadeTime);
     if (scenery.fade === 1) scenery.previous = -1;
 
-    if (scrolling) scenery.offset += CONFIG.obstacles.speed * cfg.scrollFactor * dt;
+    scenery.offset += scrollSpeed * cfg.scrollFactor * dt;
 
     return changed;
 }
 
 /* sceneImages[i] is the loaded image of SCENES[i] (null if it has none). */
-function drawScenery(ctx, scenery, sceneImages, cloudsImage, cloudsX, world) {
+function drawScenery(ctx, scenery, sceneImages, world) {
     if (scenery.previous >= 0) {
-        drawScene(ctx, scenery.previous, 1 - scenery.fade, scenery, sceneImages, cloudsImage, cloudsX, world);
+        drawScene(ctx, scenery.previous, 1 - scenery.fade, scenery, sceneImages, world);
     }
-    drawScene(ctx, scenery.index, scenery.fade, scenery, sceneImages, cloudsImage, cloudsX, world);
+    drawScene(ctx, scenery.index, scenery.fade, scenery, sceneImages, world);
     ctx.globalAlpha = 1;
 }
 
-function drawScene(ctx, index, alpha, scenery, sceneImages, cloudsImage, cloudsX, world) {
+function drawScene(ctx, index, alpha, scenery, sceneImages, world) {
     const image = sceneImages[index];
     ctx.globalAlpha = alpha;
 
@@ -90,10 +90,5 @@ function drawScene(ctx, index, alpha, scenery, sceneImages, cloudsImage, cloudsX
                 ctx.restore();
             }
         }
-    }
-
-    if (SCENES[index].clouds) {
-        const clouds = CONFIG.clouds;
-        ctx.drawImage(cloudsImage, Math.round(cloudsX), clouds.y, clouds.width, clouds.height);
     }
 }

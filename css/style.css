@@ -150,7 +150,8 @@
     gap: 8px;
 }
 
-.btn-lang {
+.btn-lang,
+.btn-option {
     min-height: 36px;
     padding: 6px 12px;
     font: bold 14px/1 "Courier New", monospace;
@@ -162,13 +163,16 @@
 }
 
 .btn-lang:hover,
-.btn-lang:focus-visible {
+.btn-lang:focus-visible,
+.btn-option:hover,
+.btn-option:focus-visible {
     background: rgba(255, 255, 255, 0.25);
     outline: 2px solid #fff;
     outline-offset: 2px;
 }
 
-.btn-lang[aria-pressed="true"] {
+.btn-lang[aria-pressed="true"],
+.btn-option[aria-pressed="true"] {
     color: #1d3b1f;
     background: #ffd95a;
     border-color: #1d3b1f;
@@ -214,6 +218,69 @@
 .btn-menu:hover,
 .btn-menu:focus-visible {
     color: #1d3b1f;
+}
+
+/* Gear button, top right of the board. */
+.btn-gear {
+    position: absolute;
+    top: 8px;
+    right: 10px;
+    width: 44px;
+    height: 44px;
+    font-size: 26px;
+    line-height: 1;
+    color: #fff;
+    background: rgba(0, 0, 0, 0.45);
+    border: 2px solid #fff;
+    border-radius: 8px;
+    cursor: pointer;
+    z-index: 1;
+}
+
+.btn-gear:hover,
+.btn-gear:focus-visible {
+    background: rgba(255, 255, 255, 0.25);
+    outline: 2px solid #fff;
+    outline-offset: 2px;
+}
+
+.btn-gear[hidden],
+.btn-settings-menu[hidden],
+.settings-note[hidden] {
+    display: none;
+}
+
+/* Settings / pause screen: label on the left, choice on the right. */
+.screen-settings {
+    background: rgba(0, 0, 0, 0.75);
+    gap: 12px;
+}
+
+.screen-settings h2 {
+    color: #ffd95a;
+    font-size: 38px;
+}
+
+.options {
+    display: grid;
+    grid-template-columns: auto auto;
+    gap: 10px 16px;
+    align-items: center;
+    text-align: left;
+}
+
+.option-group {
+    display: flex;
+    gap: 8px;
+}
+
+.btn-option {
+    min-width: 110px;
+}
+
+.btn-option:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
 }
 
 /* Victory banner: the frozen game stays visible behind it. */
@@ -288,6 +355,23 @@
 }
 
 @media (max-width: 520px) {
+    .screen-settings h2 {
+        font-size: 28px;
+    }
+
+    .options {
+        grid-template-columns: 1fr;
+        gap: 4px;
+        text-align: center;
+        justify-items: center;
+    }
+
+    .screen-settings .btn {
+        min-width: 0;
+        padding: 10px 12px;
+        font-size: 14px;
+    }
+
     .screen-victory h2,
     .screen-ending h2 {
         font-size: 28px;

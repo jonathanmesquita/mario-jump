@@ -21,10 +21,21 @@ Jogo de corrida e pulo em pixel art, feito só com HTML, CSS e JavaScript (sem f
 - **Vidas:** são três. A cada batida você perde uma e fica piscando por um instante, sem poder ser atingido.
 - **Pontos:** um por obstáculo pulado. O recorde fica salvo no navegador.
 - **Idiomas:** Português, English, Español e Français, escolhidos no menu.
+- **Pausa:** P, Esc ou o botão de engrenagem. Sair da aba também pausa.
+
+## Configurações
+
+O botão de engrenagem, no canto da tela, abre as configurações a partir do menu:
+
+- **Som:** efeitos sonoros ligados ou desligados.
+- **Dificuldade crescente:** quando ligada, o jogo acelera aos poucos conforme a pontuação, até 45% mais rápido.
+- **Modo de jogo:** Campanha (termina nos créditos) ou Infinito (os cenários se repetem e o jogo só acaba quando as vidas acabam). Cada modo tem o seu recorde.
+
+Durante a partida, a engrenagem pausa o jogo; ali só o som pode ser alterado.
 
 ## Cenários
 
-O cenário muda a cada 10 obstáculos pulados. Ao superar os 60 obstáculos dos seis cenários, o jogador vence: vêm os créditos e a cena final na praia, com o Jonathan descansando na rede.
+O cenário muda a cada 10 obstáculos pulados. No modo Campanha, ao superar os 60 obstáculos dos seis cenários, o jogador vence: vêm os créditos e a cena final na praia, com o Jonathan descansando na rede.
 
 | Cenário | Obstáculos |
 | --- | --- |
@@ -43,6 +54,8 @@ css/style.css
 js/
   config.js      números ajustáveis (pulo, velocidade, vidas...)
   i18n.js        textos da interface em cada idioma
+  settings.js    escolhas do jogador (som, dificuldade, modo)
+  audio.js       efeitos sonoros gerados por código
   input.js       teclado, mouse e toque
   sprite.js      quadros da folha de sprites do personagem
   player.js      física do pulo e animação
@@ -56,7 +69,6 @@ images/
   obstaculos/    objetos a pular
   personagem/    folha de sprites
   ending/        cenário, rede e ondas da cena final
-  legado/        arquivos do projeto original, não usados pelo jogo
 ```
 
 Para rodar no computador, basta abrir o `index.html` no navegador. Acrescentar `?debug` ao endereço mostra as caixas de colisão.

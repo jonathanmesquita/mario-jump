@@ -7,6 +7,7 @@ const input = {
     jumpBuffer: 0,     // seconds left in which a recent press still counts
     onPress: null,     // set by game.js: called once per physical press, with 'key' or 'pointer'
     onCancel: null,    // set by game.js: called when Escape is pressed
+    onPause: null,     // set by game.js: called when P is pressed
 
     press(source) {
         this.jumpHeld = true;
@@ -37,6 +38,10 @@ const input = {
         document.addEventListener('keydown', (event) => {
             if (event.code === 'Escape') {
                 if (this.onCancel) this.onCancel();
+                return;
+            }
+            if (event.code === 'KeyP' && !event.repeat) {
+                if (this.onPause) this.onPause();
                 return;
             }
             if (!JUMP_KEYS.includes(event.code)) return;
