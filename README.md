@@ -96,6 +96,14 @@ images/
     animations/  folhas de animação dos colegas (5 colunas × 4 linhas)
   menu/          wallpapers do menu (vagão do metrô) e da tela de seleção
   ending/        cenário, rede e ondas da cena final
+tools/
+  optimize_images.py  converte as artes de PNG para WebP
+```
+
+As artes ficam em WebP (bem menores que PNG, com a mesma aparência); só os obstáculos continuam em PNG. Para converter uma arte nova antes de usá-la no jogo (precisa de Python 3 com Pillow):
+
+```bash
+python tools/optimize_images.py images/cenarios/novo-cenario.png
 ```
 
 Para rodar no computador, basta abrir o `index.html` no navegador. Acrescentar `?debug` ao endereço mostra as caixas de colisão.
