@@ -34,7 +34,7 @@ const screens = [menuScreen, gameOverScreen, victoryScreen, creditsScreen, endin
 // Add ?debug to the URL to see the hitboxes.
 const DEBUG = new URLSearchParams(location.search).has('debug');
 
-const images = { scenes: [], obstacles: {} };
+const images = { scenes: [], obstacles: {}, characters: {} };   // characters: gameplay sheet per id
 const world = { width: 0, height: 0 };   // canvas size in CSS px
 
 /* Screen y where feet and obstacles rest. */
@@ -55,6 +55,7 @@ const game = {
     player: createPlayer(),
     obstacles: createObstacles(),
     scenery: createScenery(),
+    character: 'arriba', // id of the character in this run (see characters.js)
 };
 
 /* ---------- state ---------- */
@@ -91,7 +92,42 @@ function openCharacterSelect() {
     characterSelect.focusSelected();
 }
 
+/* Downloads a character's gameplay sheet once; the same promise is reused. */
+const characterSheetLoads = {};
+function loadCharacterSheet(id) {
+    if (!SPRITES[id]) return Promise.reject(new Error(id));
+    if (!characterSheetLoads[id]) {
+        characterSheetLoads[id] = loadImage(SPRITES[id].src)
+            .then((image) => { images.characters[id] = image; })
+            .catch((error) => { delete characterSheetLoads[id]; throw error; });
+    }
+    return characterSheetLoads[id];
+}
+
+/* Jogar on the selection screen: make sure the sheet is there, then start. */
+async function startWithSelectedCharacter() {
+    const character = roster.get(roster.selected);
+    if (game.state !== 'select' || !roster.canPlay(character)) return;
+    try {
+        await loadCharacterSheet(character.id);
+    } catch (error) {
+        characterSelect.message = `${i18n.t('loadError')} ${character.name}`;
+        characterSelect.refresh();
+        return;
+    }
+    if (game.state === 'select') startGame();
+}
+
+/* The character drawn on screen: the one of this run, or while choosing,
+   the one being chosen (if its sheet is already loaded). Arriba otherwise. */
+function getShownCharacter() {
+    const id = ['menu', 'select'].includes(game.state) ? roster.selected : game.character;
+    return images.characters[id] ? id : 'arriba';
+}
+
 function startGame() {
+    const chosen = roster.get(roster.selected);
+    game.character = roster.canPlay(chosen) && images.characters[chosen.id] ? chosen.id : 'arriba';
     resetRun();
     game.state = 'playing';
     showScreen(null);
@@ -147,9 +183,10 @@ function getSpeedFactor() {
 function winGame() {
     playSound('win');
     roster.completeScene(game.scenery.index);   // the last scene counts as completed too
+    if (settings.mode === 'campaign') roster.winCampaign();   // reveals the secret boss
     game.state = 'victory';
     game.stateTime = 0;
-    preloadEnding();
+    preloadEnding(game.character);
 
     if (game.score > game.best) {
         game.best = game.score;
@@ -175,7 +212,7 @@ function startEnding() {
     if (game.state !== 'credits') return;
     game.state = 'ending';
     game.stateTime = 0;
-    game.beach = createBeach();
+    game.beach = createBeach(game.character);
     showScreen(endingScreen);
 }
 
@@ -355,7 +392,7 @@ function update(dt) {
         updateHud();
 
         // The ending images are big: fetch them shortly before they are needed.
-        if (game.score >= getWinScore() - CONFIG.campaign.preloadBefore) preloadEnding();
+        if (game.score >= getWinScore() - CONFIG.campaign.preloadBefore) preloadEnding(game.character);
 
         if (game.score >= getWinScore()) {
             winGame();
@@ -397,7 +434,8 @@ function render() {
     drawObstacles(ctx, images.obstacles, game.obstacles, groundY);
     // He keeps the victory pose while the credits fade in.
     const pose = game.state === 'credits' ? 'victory' : game.state;
-    drawPlayer(ctx, images.sprite, game.player, pose, groundY);
+    const shown = getShownCharacter();
+    drawPlayer(ctx, images.characters[shown], SPRITES[shown], game.player, pose, groundY);
 
     if (DEBUG) {
         ctx.strokeStyle = 'red';
@@ -455,11 +493,17 @@ async function boot() {
     settings.load();
     roster.load();
     characterSelect.build(document.querySelector('.character-grid'));
-    characterSelect.onConfirm = () => { if (game.state === 'select') startGame(); };
+    characterSelect.onConfirm = startWithSelectedCharacter;
+    // Start downloading a sheet as soon as its character is picked.
+    characterSelect.onChange = () => {
+        if (roster.canPlay(roster.get(roster.selected))) loadCharacterSheet(roster.selected).catch(() => {});
+    };
     preloadPortraits();
 
     try {
-        images.sprite = await loadImage(SPRITE.src);
+        await loadCharacterSheet('arriba');
+        // A colleague chosen on a previous visit: fetch the sheet in the background.
+        if (roster.selected !== 'arriba') loadCharacterSheet(roster.selected).catch(() => {});
         await Promise.all(Object.keys(OBSTACLE_TYPES).map(async (name) => {
             images.obstacles[name] = await loadImage(OBSTACLE_TYPES[name].image);
         }));
@@ -500,9 +544,7 @@ async function boot() {
     // Leaving the tab in the middle of a run pauses it.
     document.addEventListener('visibilitychange', () => { if (document.hidden && game.state === 'playing') openSettings(); });
     document.querySelector('.btn-play').addEventListener('click', openCharacterSelect);
-    document.querySelector('.btn-select-play').addEventListener('click', () => {
-        if (game.state === 'select' && roster.canPlay(roster.get(roster.selected))) startGame();
-    });
+    document.querySelector('.btn-select-play').addEventListener('click', startWithSelectedCharacter);
     document.querySelector('.btn-select-back').addEventListener('click', showMenu);
     document.querySelector('.btn-retry').addEventListener('click', () => { if (canLeaveGameOver()) startGame(); });
     document.querySelector('.screen-gameover .btn-menu').addEventListener('click', () => { if (canLeaveGameOver()) showMenu(); });

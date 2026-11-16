@@ -26,11 +26,26 @@ const CREDITS = [
 const ENDING = {
     scenery: './images/ending/cenario-final-por-do-sol.png',   // 1672x941
 
-    // Jonathan in the hammock: 8 frames on a regular 4x2 grid.
-    character: {
-        image: './images/ending/sprite-arriba-final-01.png',   // 1774x887
-        columns: 4, rows: 2, frames: 8, fps: 4,
-        x: 0.15, y: 0.53, width: 0.31,                         // left, top, width; cell is square
+    // The character of the run relaxing on the beach. Every sheet is 1774x887
+    // with 8 frames on a regular 4x2 grid of square cells.
+    characterGrid: { columns: 4, rows: 2, frames: 8, fps: 4 },
+
+    // Per character:
+    //   image          the ending sheet
+    //   width          size of one cell on screen, as a fraction of the scenery width
+    //   contentBottom  where the drawing ends inside a cell (0 = top, 1 = bottom),
+    //                  measured from the PNG, so the feet can be put on the sand
+    //   feetY          the sand line where that bottom lands (fraction of the scenery height)
+    //   x              left edge of the cell (fraction of the scenery width)
+    // A character without an entry (e.g. the secret boss before its art exists)
+    // falls back to Arriba.
+    characters: {
+        arriba:            { image: './images/ending/sprite-arriba-final-01.png',              width: 0.31, contentBottom: 0.832, feetY: 0.988, x: 0.15 },
+        ariel:             { image: './images/ending/sprite-ariel-final-praia-01.png',         width: 0.25, contentBottom: 0.936, feetY: 0.95,  x: 0.15 },
+        'amaury-caldeira': { image: './images/ending/sprite-amaury-caldeira-final-praia-01.png', width: 0.25, contentBottom: 0.931, feetY: 0.95,  x: 0.15 },
+        'ana-caroline':    { image: './images/ending/sprite-ana-caroline-final-praia-01.png',  width: 0.25, contentBottom: 0.963, feetY: 0.95,  x: 0.15 },
+        milena:            { image: './images/ending/sprite-milena-final-praia-01.png',        width: 0.25, contentBottom: 0.961, feetY: 0.95,  x: 0.17 },
+        ananias:           { image: './images/ending/sprite-ananias-final-praia-01.png',       width: 0.25, contentBottom: 0.954, feetY: 0.95,  x: 0.15 },
     },
 
     // Sea: 8 strips of 412x104. They are not on a regular grid, so the
@@ -59,24 +74,34 @@ function prefersReducedMotion() {
 
 /* ---------- loading ---------- */
 
-const endingImages = { scenery: null, character: null, waves: null, promise: null };
+const endingImages = { scenery: null, waves: null, characters: {}, promise: null, characterPromises: {} };
 
-/* Starts the download once; calling it again returns the same promise. */
-function preloadEnding() {
+function endingCharacterId(id) {
+    return ENDING.characters[id] ? id : 'arriba';
+}
+
+/* Starts the download of the beach and of this character's ending sheet.
+   Calling it again reuses what is already loading or loaded. */
+function preloadEnding(characterId) {
     if (!endingImages.promise) {
         endingImages.promise = Promise.all([
             loadImage(ENDING.scenery),
-            loadImage(ENDING.character.image),
             loadImage(ENDING.waves.image),
-        ]).then(([scenery, character, waves]) => {
+        ]).then(([scenery, waves]) => {
             endingImages.scenery = scenery;
-            endingImages.character = character;
             endingImages.waves = waves;
         }).catch(() => {
             endingImages.promise = null;   // allow another try on the next win
         });
     }
-    return endingImages.promise;
+
+    const id = endingCharacterId(characterId);
+    if (!endingImages.characterPromises[id]) {
+        endingImages.characterPromises[id] = loadImage(ENDING.characters[id].image)
+            .then((image) => { endingImages.characters[id] = image; })
+            .catch(() => { delete endingImages.characterPromises[id]; });
+    }
+    return Promise.all([endingImages.promise, endingImages.characterPromises[id]]);
 }
 
 /* ---------- credits ---------- */
@@ -187,8 +212,9 @@ function drawCredits(ctx, credits, world) {
 
 /* ---------- beach ---------- */
 
-function createBeach() {
+function createBeach(characterId) {
     return {
+        character: endingCharacterId(characterId),
         time: 0,
         reduced: prefersReducedMotion(),
     };
@@ -301,22 +327,29 @@ function drawWaves(ctx, beach, left, top, width, height) {
     ctx.globalAlpha = alpha;
 }
 
+/* The run's character on the beach (Arriba if that sheet failed to load). */
 function drawHammock(ctx, beach, left, top, width, height) {
-    const character = ENDING.character;
-    const image = endingImages.character;
-    const frame = endingFrame(beach, character);
-    const cellWidth = image.width / character.columns;
-    const cellHeight = image.height / character.rows;
-    const size = character.width * width;
+    let id = beach.character;
+    if (!endingImages.characters[id]) id = 'arriba';
+    const image = endingImages.characters[id];
+    if (!image) return;   // still downloading
+
+    const grid = ENDING.characterGrid;
+    const place = ENDING.characters[id];
+    const frame = endingFrame(beach, grid);
+    const cellWidth = image.width / grid.columns;
+    const cellHeight = image.height / grid.rows;
+    const drawWidth = place.width * width;
+    const drawHeight = drawWidth * cellHeight / cellWidth;
 
     ctx.drawImage(
         image,
-        (frame % character.columns) * cellWidth,
-        Math.floor(frame / character.columns) * cellHeight,
+        (frame % grid.columns) * cellWidth,
+        Math.floor(frame / grid.columns) * cellHeight,
         cellWidth, cellHeight,
-        left + Math.round(character.x * width),
-        top + Math.round(character.y * height),
-        size,
-        size * cellHeight / cellWidth
+        left + Math.round(place.x * width),
+        top + Math.round(place.feetY * height - place.contentBottom * drawHeight),
+        drawWidth,
+        drawHeight
     );
 }

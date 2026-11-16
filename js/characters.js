@@ -15,41 +15,52 @@
      portrait    path of the two-expression PNG
      status      'available' = playable from the start
                  'locked'    = unlocked by completing a scene (see unlockScene)
+                 'secret'    = hidden as "???" until the campaign is won once
                  'inactive'  = shown grey with an X, never selectable or unlockable
      unlockScene index in SCENES (0 = Avenida Paulista ... 5 = The Office) whose
                  completion unlocks a 'locked' character. null = not decided yet,
                  so the character stays locked.
-     playable    true only when the character has its own gameplay sprite sheet.
-                 An unlocked character without one can be picked on this screen
-                 but cannot start a run yet ("coming soon"). */
+     playable    true only when the character has its own gameplay sprite sheet
+                 (see SPRITES in sprite.js). An unlocked character without one
+                 can be picked on this screen but cannot start a run yet
+                 ("coming soon"). */
 const CHARACTERS = [
     { id: 'arriba',          name: 'Arriba',          status: 'available', playable: true },
-    { id: 'ariel',           name: 'Ariel',           status: 'locked',   unlockScene: null, playable: false },
-    { id: 'amaury-caldeira', name: 'Amaury Caldeira', status: 'locked',   unlockScene: null, playable: false },
-    { id: 'ana-caroline',    name: 'Ana Caroline',    status: 'locked',   unlockScene: null, playable: false },
-    { id: 'milena',          name: 'Milena',          status: 'locked',   unlockScene: null, playable: false },
+    { id: 'ariel',           name: 'Ariel',           status: 'available', playable: true },
+    { id: 'amaury-caldeira', name: 'Amaury Caldeira', status: 'available', playable: true },
+    { id: 'ana-caroline',    name: 'Ana Caroline',    status: 'available', playable: true },
+    { id: 'milena',          name: 'Milena',          status: 'available', playable: true },
     { id: 'ananias',         name: 'Ananias',         status: 'inactive' },
+    // The boss: revealed after winning the campaign. Its art does not exist
+    // yet, so it has no portrait and is not playable ("coming soon").
+    // When the art arrives: set name, hasPortrait: true and playable: true,
+    // and add its sheets to SPRITES (sprite.js) and ENDING.characters (ending.js).
+    { id: 'chefe',           name: '???',             status: 'secret',    playable: false, hasPortrait: false },
 ];
 
 for (const character of CHARACTERS) {
-    character.portrait = `./images/characters/portraits/portrait-${character.id}-01.png`;
+    character.portrait = character.hasPortrait === false
+        ? null
+        : `./images/characters/portraits/portrait-${character.id}-01.png`;
 }
 
 /* CSS url() inside a custom property is resolved against the stylesheet
    (css/), not the page, so the portrait path is made absolute first. */
 function portraitUrl(character) {
+    if (!character.portrait) return 'none';
     return `url("${new URL(character.portrait, document.baseURI).href}")`;
 }
 
 const DEFAULT_CHARACTER = 'arriba';
 const CHARACTER_STORAGE_KEY = 'arriba-jump.characters';
-const GRID_COLUMNS = 3;
+const GRID_COLUMNS = 4;   // keep in step with .character-grid in style.css
 
 /* ---------- progress ---------- */
 
 const roster = {
     selected: DEFAULT_CHARACTER,
     completedScenes: [],   // indexes of SCENES the player has completed at least once
+    campaignWon: false,    // the campaign was finished at least once (reveals the secret character)
 
     load() {
         try {
@@ -57,6 +68,7 @@ const roster = {
             if (Array.isArray(saved.completedScenes)) {
                 this.completedScenes = saved.completedScenes.filter(Number.isInteger);
             }
+            this.campaignWon = saved.campaignWon === true;
             if (saved.selected && this.canPlay(this.get(saved.selected))) this.selected = saved.selected;
         } catch (error) {
             /* nothing saved, or storage blocked: start from scratch */
@@ -68,6 +80,7 @@ const roster = {
             localStorage.setItem(CHARACTER_STORAGE_KEY, JSON.stringify({
                 selected: this.selected,
                 completedScenes: this.completedScenes,
+                campaignWon: this.campaignWon,
             }));
         } catch (error) {
             /* progress just won't be remembered */
@@ -82,6 +95,7 @@ const roster = {
     statusOf(character) {
         if (!character || character.status === 'inactive') return 'inactive';
         if (character.status === 'available') return 'available';
+        if (character.status === 'secret') return this.campaignWon ? 'available' : 'locked';
         const unlocked = character.unlockScene !== null && character.unlockScene !== undefined
             && this.completedScenes.includes(character.unlockScene);
         return unlocked ? 'available' : 'locked';
@@ -89,6 +103,21 @@ const roster = {
 
     canPlay(character) {
         return this.statusOf(character) === 'available' && character.playable === true;
+    },
+
+    /* Records a won campaign. Returns the characters it unlocked, if any. */
+    winCampaign() {
+        if (this.campaignWon) return [];
+        const lockedBefore = CHARACTERS.filter((character) => this.statusOf(character) === 'locked');
+        this.campaignWon = true;
+        this.save();
+        return lockedBefore.filter((character) => this.statusOf(character) === 'available');
+    },
+
+    /* The name to show: the secret character stays "???" until revealed. */
+    displayName(character) {
+        return character.status === 'secret' && this.statusOf(character) !== 'available'
+            ? '???' : character.name;
     },
 
     /* Records a completed scene. Returns the characters it unlocked, if any. */
@@ -122,7 +151,7 @@ const characterSelect = {
                 + '<span class="card-name"></span>'
                 + '<span class="card-badge" aria-hidden="true"></span>';
             card.querySelector('.character-portrait').style.setProperty('--portrait-url', portraitUrl(character));
-            card.querySelector('.card-name').textContent = character.name;
+            if (!character.portrait) card.querySelector('.character-portrait').classList.add('no-portrait');
             card.addEventListener('click', () => this.choose(character.id));
             grid.appendChild(card);
             this.cards.push(card);
@@ -143,20 +172,26 @@ const characterSelect = {
             this.message = '';
             if (roster.canPlay(character)) roster.save();   // only remember playable choices
         } else {
-            this.message = `${character.name}: ${i18n.t(status === 'locked' ? 'lockedHint' : 'inactiveHint')}`;
+            const hint = character.status === 'secret' ? 'secretHint' : status === 'locked' ? 'lockedHint' : 'inactiveHint';
+            this.message = `${roster.displayName(character)}: ${i18n.t(hint)}`;
         }
         this.refresh();
         if (this.onChange) this.onChange();
     },
 
-    /* Arrow keys move the focus around the 3-column grid. */
+    /* Arrow keys move the focus around the grid. */
     handleArrows(event) {
         const steps = { ArrowLeft: -1, ArrowRight: 1, ArrowUp: -GRID_COLUMNS, ArrowDown: GRID_COLUMNS };
         const step = steps[event.key];
         if (!step) return;
         event.preventDefault();
-        const current = this.cards.indexOf(document.activeElement);
-        const next = (Math.max(current, 0) + step + this.cards.length) % this.cards.length;
+        const current = Math.max(this.cards.indexOf(document.activeElement), 0);
+        let next = current + step;
+        if (Math.abs(step) === 1) {
+            next = (next + this.cards.length) % this.cards.length;   // left / right wrap around
+        } else if (next < 0 || next >= this.cards.length) {
+            return;   // up / down stop at the edge of the grid
+        }
         this.cards[next].focus();
     },
 
@@ -168,19 +203,23 @@ const characterSelect = {
             const character = roster.get(card.dataset.id);
             const status = roster.statusOf(character);
             const selected = character.id === roster.selected;
+            const name = roster.displayName(character);
+            card.querySelector('.card-name').textContent = name;
             card.classList.toggle('is-locked', status === 'locked');
+            card.classList.toggle('is-secret', character.status === 'secret');
             card.classList.toggle('is-inactive', status === 'inactive');
             card.querySelector('.character-portrait').dataset.selected = String(selected);
             card.querySelector('.card-badge').textContent = status === 'locked' ? '🔒' : status === 'inactive' ? i18n.t('inactive') : '';
             card.setAttribute('aria-pressed', String(selected));
             card.setAttribute('aria-disabled', String(status !== 'available'));
-            card.setAttribute('aria-label', statusText[status] ? `${character.name}, ${statusText[status]}` : character.name);
+            card.setAttribute('aria-label', statusText[status] ? `${name}, ${statusText[status]}` : name);
         }
 
         const chosen = roster.get(roster.selected);
         const preview = document.querySelector('.preview-portrait');
         preview.style.setProperty('--portrait-url', portraitUrl(chosen));
-        document.querySelector('.preview-name').textContent = chosen.name;
+        preview.classList.toggle('no-portrait', !chosen.portrait);
+        document.querySelector('.preview-name').textContent = roster.displayName(chosen);
 
         const playable = roster.canPlay(chosen);
         document.querySelector('.preview-status').textContent = this.message || (playable ? '' : i18n.t('comingSoon'));
@@ -197,5 +236,7 @@ const characterSelect = {
 
 /* Preloads the portraits so the cards don't pop in one by one. */
 function preloadPortraits() {
-    for (const character of CHARACTERS) new Image().src = character.portrait;
+    for (const character of CHARACTERS) {
+        if (character.portrait) new Image().src = character.portrait;
+    }
 }
