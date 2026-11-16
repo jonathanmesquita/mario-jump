@@ -497,14 +497,22 @@ function render() {
         return;
     }
 
-    // The menu screens show the metro car; the game shows the current scenery.
-    const onMenu = ['menu', 'settings', 'select', 'board'].includes(game.state);
-    if (!onMenu || !drawMenuScene(ctx, world)) drawScenery(ctx, game.scenery, images.scenes, world);
+    const shown = getShownCharacter();
 
+    // The menu screens show the metro car with the chosen character sitting
+    // on a bench, bigger than in the game and still breathing.
+    const onMenu = ['menu', 'settings', 'select', 'board'].includes(game.state);
+    const seated = onMenu && drawMenuScene(ctx, world, (x, feetY, height) => {
+        const sprite = SPRITES[shown];
+        const scale = height / sprite.frames.idle[0][3];
+        drawSpriteFrame(ctx, images.characters[shown], getPlayerFrame(game.player, 'menu', sprite), x, feetY, scale);
+    });
+    if (seated) return;
+
+    drawScenery(ctx, game.scenery, images.scenes, world);
     drawObstacles(ctx, images.obstacles, game.obstacles, groundY);
     // He keeps the victory pose while the credits fade in.
     const pose = game.state === 'credits' ? 'victory' : game.state;
-    const shown = getShownCharacter();
     drawPlayer(ctx, images.characters[shown], SPRITES[shown], game.player, pose, groundY);
 
     if (DEBUG) {
