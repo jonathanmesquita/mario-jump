@@ -499,15 +499,19 @@ function render() {
 
     const shown = getShownCharacter();
 
-    // The menu screens show the metro car with the chosen character sitting
-    // on a bench, bigger than in the game and still breathing.
+    // The menu screens show the metro car with the chosen character in the
+    // bottom-left corner, in the foreground: bigger than in the game, cut at
+    // the legs by the edge of the board and facing the menu, still breathing.
     const onMenu = ['menu', 'settings', 'select', 'board'].includes(game.state);
-    const seated = onMenu && drawMenuScene(ctx, world, (x, feetY, height) => {
+    if (onMenu && drawMenuScene(ctx, world)) {
         const sprite = SPRITES[shown];
+        const height = world.height * CONFIG.menuCharacter.height;
         const scale = height / sprite.frames.idle[0][3];
-        drawSpriteFrame(ctx, images.characters[shown], getPlayerFrame(game.player, 'menu', sprite), x, feetY, scale);
-    });
-    if (seated) return;
+        const frame = getPlayerFrame(game.player, 'menu', sprite);
+        drawSpriteFrame(ctx, images.characters[shown], frame,
+            height * CONFIG.menuCharacter.x, world.height + height * CONFIG.menuCharacter.belowEdge, scale);
+        return;
+    }
 
     drawScenery(ctx, game.scenery, images.scenes, world);
     drawObstacles(ctx, images.obstacles, game.obstacles, groundY);

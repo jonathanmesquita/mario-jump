@@ -58,6 +58,13 @@ const CONFIG = {
         fadeTime: 1.2,       // the beach fades in
     },
 
+    // The character watching from the bottom-left corner of the menu screens.
+    menuCharacter: {
+        height: 0.55,        // fraction of the board height
+        x: 0.36,             // head position from the left edge, in character heights
+        belowEdge: 0.15,     // part of the character (the feet) left below the board
+    },
+
     maxDelta: 1 / 30,        // longest step simulated in one frame (tab switch, lag spike)
     restartDelay: 0.4,       // ignore input right after a screen appears, so a late jump press doesn't act on it
     storageKey: 'mario-jump.best',   // best score of the campaign; infinite mode adds '.infinite'
