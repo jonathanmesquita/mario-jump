@@ -557,6 +557,70 @@
     }
 }
 
+.screen-menu {
+    /* Discreet dark spot behind the title and buttons; the metro car stays visible around it. */
+    background: radial-gradient(ellipse 46% 62% at 50% 48%, rgba(0, 0, 0, 0.55), rgba(0, 0, 0, 0.18) 72%, rgba(0, 0, 0, 0.08));
+}
+
+@media (max-width: 700px) {
+    .screen-menu {
+        background: radial-gradient(ellipse 85% 60% at 50% 35%, rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.2) 80%);
+    }
+}
+
+/* Phones: the menu is packed at the top so the character in the bottom-left
+   corner stays visible. */
+@media (max-width: 520px) {
+    .screen-menu {
+        justify-content: flex-start;
+        gap: 8px;
+        padding-top: 12px;
+    }
+
+    .screen-menu h1 {
+        font-size: 30px;
+        padding: 0 44px;          /* keeps the title clear of the gear button */
+    }
+
+    .screen-menu .hint {
+        display: none;
+    }
+
+    .screen-menu .buttons {
+        flex-wrap: nowrap;
+        gap: 8px;
+    }
+
+    .screen-menu .btn {
+        min-width: 0;
+        min-height: 44px;
+        padding: 8px 10px;
+        font-size: 14px;
+    }
+
+    .screen-menu .languages {
+        gap: 6px;
+    }
+
+    .screen-menu .btn-lang {
+        min-height: 32px;
+        padding: 4px 8px;
+        font-size: 12px;
+    }
+}
+
+.unlock-note {
+    padding: 4px 12px;
+    color: #1d3b1f;
+    background: #ffd95a;
+    border: 2px solid #1d3b1f;
+    box-shadow: 3px 3px 0 #000;
+}
+
+.unlock-note[hidden] {
+    display: none;
+}
+
 /* Victory banner: the frozen game stays visible behind it. */
 .screen-victory {
     background: rgba(0, 0, 0, 0.35);

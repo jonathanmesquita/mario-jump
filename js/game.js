@@ -56,6 +56,7 @@ const game = {
     obstacles: createObstacles(),
     scenery: createScenery(),
     character: 'arriba', // id of the character in this run (see characters.js)
+    unlocked: [],        // characters unlocked by the last win, announced on the ending
 };
 
 /* ---------- state ---------- */
@@ -200,7 +201,8 @@ function getSpeedFactor() {
 function winGame() {
     playSound('win');
     roster.completeScene(game.scenery.index);   // the last scene counts as completed too
-    if (settings.mode === 'campaign') roster.winCampaign();   // recorded for revealing the boss later
+    // Counting wins drives the hidden unlocks (Ananias after two wins).
+    game.unlocked = settings.mode === 'campaign' ? roster.winCampaign() : [];
     game.state = 'victory';
     game.stateTime = 0;
     preloadEnding(game.character);
@@ -230,6 +232,10 @@ function startEnding() {
     game.state = 'ending';
     game.stateTime = 0;
     game.beach = createBeach(game.character);
+    // Announce a character unlocked by this win.
+    const note = document.querySelector('.unlock-note');
+    note.hidden = game.unlocked.length === 0;
+    note.textContent = game.unlocked.map((character) => `${i18n.t('unlockedNote')}: ${character.name}!`).join(' ');
     showScreen(endingScreen);
 }
 
@@ -366,6 +372,7 @@ function update(dt) {
     input.update(dt);
 
     // Paused or in the settings: nothing moves.
+    if (['menu', 'settings', 'select'].includes(game.state)) updateMenuScene(dt);
     if (game.state === 'paused' || game.state === 'settings') return;
 
     if (game.state === 'menu' || game.state === 'select') {
@@ -446,7 +453,9 @@ function render() {
         return;
     }
 
-    drawScenery(ctx, game.scenery, images.scenes, world);
+    // The menu screens show the metro car; the game shows the current scenery.
+    const onMenu = ['menu', 'settings', 'select'].includes(game.state);
+    if (!onMenu || !drawMenuScene(ctx, world)) drawScenery(ctx, game.scenery, images.scenes, world);
 
     drawObstacles(ctx, images.obstacles, game.obstacles, groundY);
     // He keeps the victory pose while the credits fade in.
@@ -506,6 +515,7 @@ function loadImage(src) {
 }
 
 async function boot() {
+    loadMenuScene();
     i18n.init(document.querySelector('.languages'));
     settings.load();
     roster.load();
@@ -572,6 +582,8 @@ async function boot() {
     document.querySelector('.btn-skip').addEventListener('click', startEnding);
     document.querySelector('.btn-again').addEventListener('click', () => { if (canAct('ending')) startGame(); });
     document.querySelector('.btn-ending-menu').addEventListener('click', () => { if (canAct('ending')) showMenu(); });
+    // The menu picture: wait for it so the first screen doesn't switch backgrounds.
+    await loadMenuScene();
     showMenu();
 
     lastTime = performance.now();
