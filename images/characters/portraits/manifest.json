@@ -7,7 +7,10 @@
     "rows": 1,
     "frameWidth": 887,
     "frameHeight": 887,
-    "states": ["normal", "selected"],
+    "states": [
+      "normal",
+      "selected"
+    ],
     "background": "transparent"
   },
   "characters": [
@@ -17,7 +20,7 @@
       "status": "active",
       "initiallyUnlocked": true,
       "portrait": "portrait-arriba-01.png",
-      "gameplaySprite": "images/arriba-sprites.png"
+      "gameplaySprite": "images/characters/sprite-arriba-jump-01.png"
     },
     {
       "id": "ariel",
@@ -25,7 +28,7 @@
       "status": "active",
       "initiallyUnlocked": false,
       "portrait": "portrait-ariel-01.png",
-      "gameplaySprite": "images/characters/sprite-ariel-01.png"
+      "gameplaySprite": null
     },
     {
       "id": "amaury-caldeira",
@@ -33,7 +36,7 @@
       "status": "active",
       "initiallyUnlocked": false,
       "portrait": "portrait-amaury-caldeira-01.png",
-      "gameplaySprite": "images/characters/sprite-amaury-caldeira-01.png"
+      "gameplaySprite": null
     },
     {
       "id": "ana-caroline",
@@ -41,7 +44,7 @@
       "status": "active",
       "initiallyUnlocked": false,
       "portrait": "portrait-ana-caroline-01.png",
-      "gameplaySprite": "images/characters/sprite-ana-caroline-01.png"
+      "gameplaySprite": null
     },
     {
       "id": "milena",
@@ -49,7 +52,7 @@
       "status": "active",
       "initiallyUnlocked": false,
       "portrait": "portrait-milena-01.png",
-      "gameplaySprite": "images/characters/sprite-milena-01.png"
+      "gameplaySprite": null
     },
     {
       "id": "ananias",
@@ -57,7 +60,7 @@
       "status": "inactive",
       "initiallyUnlocked": false,
       "portrait": "portrait-ananias-01.png",
-      "gameplaySprite": "images/characters/sprite-ananias-01.png"
+      "gameplaySprite": null
     }
   ]
 }

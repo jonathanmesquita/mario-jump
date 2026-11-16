@@ -1,5 +1,10 @@
 /* Character system: the roster, unlocks by progress, and the selection screen.
 
+   images/characters/portraits/manifest.json is the art inventory delivered
+   with the portraits. The game reads the list below instead (fetching JSON
+   does not work when index.html is opened straight from disk), so keep
+   both in step when a character is added or changes status.
+
    Portraits: one PNG per character, 1774x887, two square cells of 887x887.
    The left half is the normal expression, the right half the "selected" one.
    CSS shows one half at a time (see .character-portrait in style.css).
