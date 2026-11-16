@@ -366,6 +366,7 @@ function update(dt) {
     input.update(dt);
 
     // Paused or in the settings: nothing moves.
+    if (['menu', 'settings', 'select'].includes(game.state)) updateMenuScene(dt);
     if (game.state === 'paused' || game.state === 'settings') return;
 
     if (game.state === 'menu' || game.state === 'select') {
@@ -446,7 +447,9 @@ function render() {
         return;
     }
 
-    drawScenery(ctx, game.scenery, images.scenes, world);
+    // The menu screens show the metro car; the game shows the current scenery.
+    const onMenu = ['menu', 'settings', 'select'].includes(game.state);
+    if (!onMenu || !drawMenuScene(ctx, world)) drawScenery(ctx, game.scenery, images.scenes, world);
 
     drawObstacles(ctx, images.obstacles, game.obstacles, groundY);
     // He keeps the victory pose while the credits fade in.
@@ -506,6 +509,7 @@ function loadImage(src) {
 }
 
 async function boot() {
+    loadMenuScene();
     i18n.init(document.querySelector('.languages'));
     settings.load();
     roster.load();
@@ -572,6 +576,8 @@ async function boot() {
     document.querySelector('.btn-skip').addEventListener('click', startEnding);
     document.querySelector('.btn-again').addEventListener('click', () => { if (canAct('ending')) startGame(); });
     document.querySelector('.btn-ending-menu').addEventListener('click', () => { if (canAct('ending')) showMenu(); });
+    // The menu picture: wait for it so the first screen doesn't switch backgrounds.
+    await loadMenuScene();
     showMenu();
 
     lastTime = performance.now();

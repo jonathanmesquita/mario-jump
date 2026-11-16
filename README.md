@@ -70,6 +70,7 @@ js/
   obstacles.js   tipos de obstáculo e movimento
   collision.js   detecção de colisão
   scenes.js      lista de cenários e rolagem do fundo
+  menu-scene.js  vagão do metrô animado atrás do menu
   ending.js      créditos e cena final da praia
   characters.js  elenco, desbloqueios e tela de seleção de personagens
   game.js        estados do jogo, placar, laço principal e desenho
@@ -79,7 +80,7 @@ images/
   characters/    folha de sprites do Arriba
     portraits/   retratos da seleção (normal | selecionado) e manifest.json
     animations/  folhas de animação dos colegas (5 colunas × 4 linhas)
-  menu/          wallpaper da tela de seleção
+  menu/          wallpapers do menu (vagão do metrô) e da tela de seleção
   ending/        cenário, rede e ondas da cena final
 ```
 
