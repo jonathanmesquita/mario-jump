@@ -22,22 +22,6 @@ const MENU_SCENE = {
     ],
     ceilingBottom: 330,       // the fluorescent lights are above this line
 
-    // The chosen character sits on the front-left bench. Picture pixels:
-    // the head anchor goes at seatX, the feet at seatFeetY with the character
-    // seatHeight tall; then the bench front (seatFront polygon) is painted
-    // back over the legs, so only the body above the seat shows.
-    seatX: 210,
-    seatFeetY: 900,
-    seatHeight: 340,
-    seatFront: [[0, 780], [330, 800], [450, 830], [450, 941], [0, 941]],
-
-    // How the picture is cut when it doesn't fit the board: 0.85 keeps mostly
-    // the bottom (benches and floor); sideways it stays centred, but shifts
-    // so the seat is never closer than seatMargin (fraction of the width) to
-    // the left edge.
-    anchorY: 0.85,
-    seatMargin: 0.2,
-
     streakPeriod: 2.6,        // seconds for a light streak to cross a window
     streakAlpha: 0.32,
     lightFlicker: 0.06,       // strength of the ceiling flicker
@@ -62,28 +46,29 @@ function updateMenuScene(dt) {
 }
 
 /* Returns false if the picture is not loaded yet, so the caller can draw
-   something else instead. drawSeated(x, feetY, height), if given, draws the
-   character sitting on the bench, in screen pixels. */
-function drawMenuScene(ctx, world, drawSeated) {
+   something else instead. */
+function drawMenuScene(ctx, world) {
     const image = menuScene.image;
     if (!image) return false;
-    const cfg = MENU_SCENE;
 
-    // Cover the whole board without stretching (see anchorY / seatMargin).
+    // Cover the whole board without stretching; whatever is cut is cut evenly
+    // from both sides, so the aisle stays in the middle.
     const scale = Math.max(world.width / image.width, world.height / image.height);
     const width = image.width * scale;
     const height = image.height * scale;
-    const left = Math.min(0, Math.max((world.width - width) / 2, world.width * cfg.seatMargin - cfg.seatX * scale));
-    const top = (world.height - height) * cfg.anchorY;
+    const left = (world.width - width) / 2;
+    const top = (world.height - height) / 2;
     ctx.drawImage(image, left, top, width, height);
 
-    const reduced = reducedMotionQuery.matches;
+    if (reducedMotionQuery.matches) return true;
+
     const t = menuScene.time;
+    const cfg = MENU_SCENE;
     ctx.save();
 
     // Light streaks crossing each window, one after the other.
     ctx.globalCompositeOperation = 'lighter';
-    if (!reduced) cfg.windows.forEach(([x0, y0, x1, y1], index) => {
+    cfg.windows.forEach(([x0, y0, x1, y1], index) => {
         const wx = left + x0 * scale;
         const wy = top + y0 * scale;
         const ww = (x1 - x0) * scale;
@@ -110,33 +95,10 @@ function drawMenuScene(ctx, world, drawSeated) {
         ctx.restore();
     });
 
-    ctx.globalCompositeOperation = 'source-over';
-    if (drawSeated) {
-        ctx.save();
-        drawSeated(left + cfg.seatX * scale, top + cfg.seatFeetY * scale, cfg.seatHeight * scale);
-        ctx.restore();
-        // The bench front goes back over the legs.
-        ctx.save();
-        ctx.beginPath();
-        cfg.seatFront.forEach(([x, y], index) => {
-            ctx[index ? 'lineTo' : 'moveTo'](left + x * scale, top + y * scale);
-        });
-        ctx.closePath();
-        ctx.clip();
-        ctx.drawImage(image, left, top, width, height);
-        ctx.restore();
-    }
-
-    if (reduced) {
-        ctx.restore();
-        return true;
-    }
-
     // Ceiling lights: two slow waves mixed, so the flicker never looks regular.
     const flicker = 0.5 + 0.3 * Math.sin(t * 2.1) + 0.2 * Math.sin(t * 5.3 + 1);
     const lightBottom = top + cfg.ceilingBottom * scale;
     const lights = ctx.createLinearGradient(0, top, 0, lightBottom);
-    ctx.globalCompositeOperation = 'lighter';
     lights.addColorStop(0, `rgba(255, 250, 210, ${cfg.lightFlicker * flicker})`);
     lights.addColorStop(1, 'rgba(255, 250, 210, 0)');
     ctx.fillStyle = lights;
