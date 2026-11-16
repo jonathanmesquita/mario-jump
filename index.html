@@ -17,6 +17,7 @@
     <script src="./js/obstacles.js" defer></script>
     <script src="./js/collision.js" defer></script>
     <script src="./js/scenes.js" defer></script>
+    <script src="./js/ending.js" defer></script>
     <script src="./js/game.js" defer></script>
 
     <title>Arriba Jump</title>
@@ -61,6 +62,38 @@
                 <button type="button" class="btn btn-menu" data-i18n="mainMenu">Menu principal</button>
             </div>
             <p class="hint" data-i18n="gameOverHint">Espaço = tentar novamente</p>
+        </div>
+
+        <!-- Victory: shown for a moment over the frozen game -->
+        <div class="screen screen-victory" hidden>
+            <h2 data-i18n="victoryTitle">Percurso concluído!</h2>
+            <p class="stats">
+                <span data-i18n="score">Pontos</span>: <span class="win-score">0</span>
+                &middot; <span data-i18n="time">Tempo</span>: <span class="win-time">0</span>s
+            </p>
+        </div>
+
+        <!-- Credits: the text is drawn on the canvas; this only holds the skip button -->
+        <div class="screen screen-credits" hidden>
+            <button type="button" class="btn btn-skip" data-i18n="skipCredits">Pular créditos</button>
+        </div>
+
+        <!-- Ending: the beach is drawn on the canvas behind this -->
+        <div class="screen screen-ending" hidden>
+            <div>
+                <h2 data-i18n="endingTitle">Missão cumprida!</h2>
+                <p class="stats">
+                    <span data-i18n="score">Pontos</span>: <span class="win-score">0</span>
+                    &middot; <span data-i18n="time">Tempo</span>: <span class="win-time">0</span>s
+                </p>
+            </div>
+            <div>
+                <div class="buttons">
+                    <button type="button" class="btn btn-again" data-i18n="playAgain">Jogar novamente</button>
+                    <button type="button" class="btn btn-ending-menu" data-i18n="mainMenu">Menu principal</button>
+                </div>
+                <p class="hint" data-i18n="endingHint">Espaço = jogar novamente</p>
+            </div>
         </div>
     </div>
 

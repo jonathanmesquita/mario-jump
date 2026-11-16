@@ -24,7 +24,7 @@ Jogo de corrida e pulo em pixel art, feito só com HTML, CSS e JavaScript (sem f
 
 ## Cenários
 
-O cenário muda a cada 10 obstáculos pulados e volta ao primeiro depois do último.
+O cenário muda a cada 10 obstáculos pulados. Ao superar os 60 obstáculos dos seis cenários, o jogador vence: vêm os créditos e a cena final na praia, com o Jonathan descansando na rede.
 
 | Cenário | Obstáculos |
 | --- | --- |
@@ -49,15 +49,19 @@ js/
   obstacles.js   tipos de obstáculo e movimento
   collision.js   detecção de colisão
   scenes.js      lista de cenários e rolagem do fundo
+  ending.js      créditos e cena final da praia
   game.js        estados do jogo, placar, laço principal e desenho
 images/
   cenarios/      fundos de cada lugar
   obstaculos/    objetos a pular
   personagem/    folha de sprites
+  ending/        cenário, rede e ondas da cena final
   legado/        arquivos do projeto original, não usados pelo jogo
 ```
 
 Para rodar no computador, basta abrir o `index.html` no navegador. Acrescentar `?debug` ao endereço mostra as caixas de colisão.
+
+Os nomes dos créditos ficam na lista `CREDITS`, no começo de `js/ending.js`. A quantidade de obstáculos para vencer é `campaign.obstaclesToWin`, em `js/config.js`.
 
 Para adicionar um cenário, coloque a imagem em `images/cenarios/` e acrescente uma linha em `js/scenes.js`. Para adicionar um obstáculo, coloque a imagem em `images/obstaculos/` e acrescente uma linha em `js/obstacles.js`.
 

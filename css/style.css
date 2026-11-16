@@ -216,7 +216,93 @@
     color: #1d3b1f;
 }
 
+/* Victory banner: the frozen game stays visible behind it. */
+.screen-victory {
+    background: rgba(0, 0, 0, 0.35);
+}
+
+.screen-victory h2,
+.screen-ending h2 {
+    color: #ffd95a;
+    font-size: 44px;
+}
+
+/* Credits: only the skip button, in the corner, over the canvas. */
+.screen-credits {
+    background: none;
+    align-items: flex-end;
+    justify-content: flex-end;
+}
+
+.btn-skip {
+    min-width: 0;
+    min-height: 44px;
+    font-size: 15px;
+    color: #fff;
+    background: rgba(0, 0, 0, 0.6);
+    border-color: #fff;
+    box-shadow: none;
+}
+
+/* Ending: on wide boards everything sits at the top, over the sky, so the
+   hammock on the sand stays free. On narrow ones the scenery is a band in
+   the middle: title above it, buttons below it. */
+.screen-ending {
+    background: none;
+    justify-content: flex-start;
+    animation: screen-fade-in 1.2s ease-out;
+}
+
+@media (max-width: 700px) {
+    .screen-ending {
+        justify-content: space-between;
+    }
+}
+
+.screen-ending > div {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+}
+
+.screen-ending .btn {
+    min-height: 44px;
+}
+
+@keyframes screen-fade-in {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+}
+
+/* People who asked their system for less motion get no fades. */
+@media (prefers-reduced-motion: reduce) {
+    .screen-ending,
+    .scene-name.show {
+        animation: none;
+    }
+
+    .scene-name.show {
+        opacity: 1;
+    }
+}
+
 @media (max-width: 520px) {
+    .screen-victory h2,
+    .screen-ending h2 {
+        font-size: 28px;
+    }
+
+    .screen-ending .btn {
+        min-width: 0;
+        padding: 10px 12px;
+        font-size: 14px;
+    }
+
+    .screen-ending .buttons {
+        flex-wrap: nowrap;
+    }
+
     .screen h1,
     .screen h2 {
         font-size: 36px;

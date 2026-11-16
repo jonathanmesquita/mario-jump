@@ -48,7 +48,7 @@ function updatePlayer(player, dt, wantsJump, jumpHeld) {
     player.animTime += dt;
 }
 
-/* state is the game state: 'menu' | 'playing' | 'gameover'. */
+/* state is the game state: 'menu' | 'playing' | 'gameover' | 'victory'. */
 function getPlayerFrame(player, state) {
     const frames = SPRITE.frames;
 
@@ -62,6 +62,7 @@ function getPlayerFrame(player, state) {
         return frames.jump[2];
     }
 
+    if (state === 'victory') return frames.victory[0];
     if (state === 'menu') return loopFrame(frames.idle, SPRITE.fps.idle, player.animTime);
     if (player.landTimer > 0) return frames.jump[4];
     return loopFrame(frames.run, SPRITE.fps.run, player.animTime);

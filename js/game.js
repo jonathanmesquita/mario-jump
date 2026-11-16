@@ -1,10 +1,13 @@
 /* Game: owns the state machine, the score, the lives, the loop and the rendering.
 
    States:
-     menu     --play-->            playing
-     playing  --no lives left-->   gameover
-     gameover --retry-->           playing
-     gameover --main menu-->       menu */
+     menu     --play-->               playing
+     playing  --no lives left-->      gameover
+     playing  --course complete-->    victory   (banner over the frozen game)
+     victory  --a few seconds-->      credits   (scrolling credits, can be skipped)
+     credits  --end or skip-->        ending    (beach at sunset)
+     gameover / ending --retry-->     playing
+     gameover / ending --main menu--> menu */
 const board = document.querySelector('.game-board');
 const canvas = document.querySelector('.game-canvas');
 const ctx = canvas.getContext('2d');
@@ -16,6 +19,10 @@ const messageLabel = document.querySelector('.message');
 const sceneLabel = document.querySelector('.scene-name');
 const menuScreen = document.querySelector('.screen-menu');
 const gameOverScreen = document.querySelector('.screen-gameover');
+const victoryScreen = document.querySelector('.screen-victory');
+const creditsScreen = document.querySelector('.screen-credits');
+const endingScreen = document.querySelector('.screen-ending');
+const screens = [menuScreen, gameOverScreen, victoryScreen, creditsScreen, endingScreen];
 
 // Add ?debug to the URL to see the hitboxes.
 const DEBUG = new URLSearchParams(location.search).has('debug');
@@ -35,6 +42,9 @@ const game = {
     time: 0,             // seconds played in this run
     best: loadBest(),
     gameOverTime: 0,     // seconds spent on the game over screen
+    stateTime: 0,        // seconds spent in the current victory / credits / ending state
+    credits: null,       // created when the credits start (see ending.js)
+    beach: null,         // created when the beach scene starts
     cloudsX: 0,
     player: createPlayer(),
     obstacles: createObstacles(),
@@ -49,6 +59,8 @@ function resetRun() {
     game.score = 0;
     game.lives = CONFIG.player.lives;
     game.time = 0;
+    game.credits = null;
+    game.beach = null;
     game.player = createPlayer();
     game.obstacles = createObstacles();
     game.scenery = createScenery();
@@ -91,8 +103,7 @@ function endGame() {
 
 /* Shows one full-board screen (or none) and hides the HUD behind it. */
 function showScreen(screen) {
-    menuScreen.hidden = screen !== menuScreen;
-    gameOverScreen.hidden = screen !== gameOverScreen;
+    for (const each of screens) each.hidden = each !== screen;
     hud.hidden = screen !== null;
     if (screen) sceneLabel.classList.remove('show');
     // A button that was just clicked keeps keyboard focus even after its
@@ -100,20 +111,71 @@ function showScreen(screen) {
     if (document.activeElement instanceof HTMLButtonElement) document.activeElement.blur();
 }
 
-/* The delay stops a late jump press from retrying by accident. */
+/* ---------- victory, credits and ending ---------- */
+
+function getWinScore() {
+    return CONFIG.campaign.obstaclesToWin;
+}
+
+/* The course is complete: obstacles, score and timer stop here. */
+function winGame() {
+    game.state = 'victory';
+    game.stateTime = 0;
+    preloadEnding();
+
+    if (game.score > game.best) {
+        game.best = game.score;
+        saveBest(game.best);
+    }
+    updateHud();
+    for (const label of document.querySelectorAll('.win-score')) label.textContent = game.score;
+    for (const label of document.querySelectorAll('.win-time')) label.textContent = Math.round(game.time);
+    showScreen(victoryScreen);
+}
+
+/* Runs once per completed game: only the victory state leads here. */
+function startCredits() {
+    if (game.state !== 'victory') return;
+    game.state = 'credits';
+    game.stateTime = 0;
+    game.credits = createCredits();
+    showScreen(creditsScreen);
+}
+
+/* Reached when the credits end or are skipped. */
+function startEnding() {
+    if (game.state !== 'credits') return;
+    game.state = 'ending';
+    game.stateTime = 0;
+    game.beach = createBeach();
+    showScreen(endingScreen);
+}
+
+/* ---------- input ---------- */
+
+/* The delay stops a late jump press from acting on a screen that just appeared. */
 function canLeaveGameOver() {
     return game.state === 'gameover' && game.gameOverTime >= CONFIG.restartDelay;
+}
+
+function canAct(state) {
+    return game.state === state && game.stateTime >= CONFIG.restartDelay;
 }
 
 /* source is 'key' or 'pointer' (see input.js). */
 function handlePress(source) {
     if (game.state === 'menu') startGame();
-    // On the game over screen a tap must hit a button; only keys retry directly.
-    else if (source === 'key' && canLeaveGameOver()) startGame();
+    else if (canAct('victory')) startCredits();
+    // On the screens below a tap must hit a button; only keys act directly.
+    else if (source !== 'key') return;
+    else if (canLeaveGameOver() || canAct('ending')) startGame();
+    else if (canAct('credits')) startEnding();
 }
 
+/* Escape. */
 function handleCancel() {
-    if (canLeaveGameOver()) showMenu();
+    if (canLeaveGameOver() || canAct('ending')) showMenu();
+    else if (canAct('credits')) startEnding();
 }
 
 /* Names of the objects that may appear in the current scene. */
@@ -173,6 +235,26 @@ function update(dt) {
         return;
     }
 
+    if (game.state === 'victory') {
+        game.stateTime += dt;
+        updatePlayer(game.player, dt, false, false);   // only lets a jump in progress land
+        if (game.stateTime >= CONFIG.campaign.victoryTime) startCredits();
+        return;
+    }
+
+    if (game.state === 'credits') {
+        game.stateTime += dt;
+        updateCredits(game.credits, dt, world);
+        if (game.credits.done) startEnding();
+        return;
+    }
+
+    if (game.state === 'ending') {
+        game.stateTime += dt;
+        updateBeach(game.beach, dt);
+        return;
+    }
+
     game.time += dt;
     updatePlayer(game.player, dt, input.wantsJump(), input.jumpHeld);
 
@@ -180,6 +262,14 @@ function update(dt) {
     if (cleared > 0) {
         game.score += cleared;
         updateHud();
+
+        // The ending images are big: fetch them shortly before they are needed.
+        if (game.score >= getWinScore() - CONFIG.campaign.preloadBefore) preloadEnding();
+
+        if (game.score >= getWinScore()) {
+            winGame();
+            return;
+        }
     }
 
     if (updateScenery(game.scenery, dt, game.score, true)) {
@@ -201,10 +291,17 @@ function render() {
     const groundY = getGroundY();
     ctx.clearRect(0, 0, world.width, world.height);
 
+    if (game.state === 'ending') {
+        drawBeach(ctx, game.beach, world);
+        return;
+    }
+
     drawScenery(ctx, game.scenery, images.scenes, images.clouds, game.cloudsX, world);
 
     drawObstacles(ctx, images.obstacles, game.obstacles, groundY);
-    drawPlayer(ctx, images.sprite, game.player, game.state, groundY);
+    // He keeps the victory pose while the credits fade in.
+    const pose = game.state === 'credits' ? 'victory' : game.state;
+    drawPlayer(ctx, images.sprite, game.player, pose, groundY);
 
     if (DEBUG) {
         ctx.strokeStyle = 'red';
@@ -212,6 +309,9 @@ function render() {
         boxes.push(getPlayerHitbox(game.player, groundY));
         for (const box of boxes) ctx.strokeRect(box.x, box.y, box.width, box.height);
     }
+
+    // The credits roll over the frozen game, which fades to black behind them.
+    if (game.state === 'credits') drawCredits(ctx, game.credits, world);
 }
 
 /* Match the canvas buffer to its on-screen size (and to high-DPI screens). */
@@ -293,6 +393,9 @@ async function boot() {
     document.querySelector('.btn-play').addEventListener('click', startGame);
     document.querySelector('.btn-retry').addEventListener('click', () => { if (canLeaveGameOver()) startGame(); });
     document.querySelector('.btn-menu').addEventListener('click', () => { if (canLeaveGameOver()) showMenu(); });
+    document.querySelector('.btn-skip').addEventListener('click', startEnding);
+    document.querySelector('.btn-again').addEventListener('click', () => { if (canAct('ending')) startGame(); });
+    document.querySelector('.btn-ending-menu').addEventListener('click', () => { if (canAct('ending')) showMenu(); });
     showMenu();
 
     lastTime = performance.now();
