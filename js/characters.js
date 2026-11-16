@@ -37,7 +37,7 @@ const CHARACTERS = [
     // set revealOnCampaignWin: true, its real name and playable: true, and add
     // its sheets to SPRITES (sprite.js) and ENDING.characters (ending.js).
     // It is the boss, not a "random character" button.
-    { id: 'chefe',           name: '?',               status: 'secret',    playable: false, revealOnCampaignWin: false },
+    { id: 'chefe-secreto',   name: '?',               status: 'secret',    playable: false, revealOnCampaignWin: false },
 ];
 
 for (const character of CHARACTERS) {

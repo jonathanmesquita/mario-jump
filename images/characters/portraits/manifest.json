@@ -63,11 +63,11 @@
       "gameplaySprite": "images/characters/animations/sprite-ananias-animacao-02.png"
     },
     {
-      "id": "chefe",
+      "id": "chefe-secreto",
       "name": "?",
       "status": "secret",
       "initiallyUnlocked": false,
-      "portrait": "portrait-chefe-01.png",
+      "portrait": "portrait-chefe-secreto-01.png",
       "gameplaySprite": null
     }
   ]
