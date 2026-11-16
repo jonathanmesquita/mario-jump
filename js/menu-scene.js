@@ -9,7 +9,7 @@
      - a slow rise and fall of the ambient light.
    With "reduce motion" switched on in the system, only the still picture shows. */
 const MENU_SCENE = {
-    image: './images/menu/wallpaper-menu-metro-v1.png',   // 1672x941
+    image: './images/menu/wallpaper-menu-metro-v1.webp',   // 1672x941
 
     // Window glass, in pixels of the picture: [left, top, right, bottom].
     windows: [

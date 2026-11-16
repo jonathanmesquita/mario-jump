@@ -12,7 +12,7 @@ Jogo de corrida e pulo em pixel art, feito só com HTML, CSS e JavaScript (sem f
 | :fire: Desafio     | [Manual do Dev - Jogo Simples usando JavaScript e HTML](https://www.youtube.com/watch?v=r9buAwVBDhA)
 
 <!-- Inserir imagem com a #vitrinedev ao final do link -->
-![Arriba Jump na Avenida Paulista](./images/capa.png#vitrinedev)
+![Arriba Jump na Avenida Paulista](./images/capa.webp#vitrinedev)
 
 ## Como jogar
 

@@ -11,7 +11,8 @@
       "normal",
       "selected"
     ],
-    "background": "transparent"
+    "background": "transparent",
+    "format": "webp"
   },
   "characters": [
     {
@@ -19,55 +20,55 @@
       "name": "Arriba",
       "status": "active",
       "initiallyUnlocked": true,
-      "portrait": "portrait-arriba-01.png",
-      "gameplaySprite": "images/characters/sprite-arriba-jump-01.png"
+      "portrait": "portrait-arriba-01.webp",
+      "gameplaySprite": "images/characters/sprite-arriba-jump-01.webp"
     },
     {
       "id": "ariel",
       "name": "Ariel",
       "status": "active",
       "initiallyUnlocked": false,
-      "portrait": "portrait-ariel-01.png",
-      "gameplaySprite": "images/characters/animations/sprite-ariel-animacao-02.png"
+      "portrait": "portrait-ariel-01.webp",
+      "gameplaySprite": "images/characters/animations/sprite-ariel-animacao-02.webp"
     },
     {
       "id": "amaury-caldeira",
       "name": "Amaury Caldeira",
       "status": "active",
       "initiallyUnlocked": false,
-      "portrait": "portrait-amaury-caldeira-01.png",
-      "gameplaySprite": "images/characters/animations/sprite-amaury-caldeira-animacao-02.png"
+      "portrait": "portrait-amaury-caldeira-01.webp",
+      "gameplaySprite": "images/characters/animations/sprite-amaury-caldeira-animacao-02.webp"
     },
     {
       "id": "ana-caroline",
       "name": "Ana Caroline",
       "status": "active",
       "initiallyUnlocked": false,
-      "portrait": "portrait-ana-caroline-01.png",
-      "gameplaySprite": "images/characters/animations/sprite-ana-caroline-animacao-02.png"
+      "portrait": "portrait-ana-caroline-01.webp",
+      "gameplaySprite": "images/characters/animations/sprite-ana-caroline-animacao-02.webp"
     },
     {
       "id": "milena",
       "name": "Milena",
       "status": "active",
       "initiallyUnlocked": false,
-      "portrait": "portrait-milena-01.png",
-      "gameplaySprite": "images/characters/animations/sprite-milena-animacao-02.png"
+      "portrait": "portrait-milena-01.webp",
+      "gameplaySprite": "images/characters/animations/sprite-milena-animacao-02.webp"
     },
     {
       "id": "ananias",
       "name": "Ananias",
       "status": "inactive",
       "initiallyUnlocked": false,
-      "portrait": "portrait-ananias-01.png",
-      "gameplaySprite": "images/characters/animations/sprite-ananias-animacao-02.png"
+      "portrait": "portrait-ananias-01.webp",
+      "gameplaySprite": "images/characters/animations/sprite-ananias-animacao-02.webp"
     },
     {
       "id": "chefe-secreto",
       "name": "?",
       "status": "secret",
       "initiallyUnlocked": false,
-      "portrait": "portrait-chefe-secreto-01.png",
+      "portrait": "portrait-chefe-secreto-01.webp",
       "gameplaySprite": null
     }
   ]

@@ -45,7 +45,7 @@ const CHARACTERS = [
 ];
 
 for (const character of CHARACTERS) {
-    character.portrait = `./images/characters/portraits/portrait-${character.id}-01.png`;
+    character.portrait = `./images/characters/portraits/portrait-${character.id}-01.webp`;
 }
 
 /* CSS url() inside a custom property is resolved against the stylesheet
