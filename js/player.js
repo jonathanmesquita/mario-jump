@@ -50,8 +50,8 @@ function updatePlayer(player, dt, wantsJump, jumpHeld) {
 }
 
 /* state is the game state: 'menu' | 'playing' | 'gameover' | 'victory'. */
-function getPlayerFrame(player, state) {
-    const frames = SPRITE.frames;
+function getPlayerFrame(player, state, sprite) {
+    const frames = sprite.frames;
 
     if (state === 'gameover' || player.hurtTimer > 0) return frames.hurt[0];
 
@@ -63,10 +63,11 @@ function getPlayerFrame(player, state) {
         return frames.jump[2];
     }
 
-    if (state === 'victory') return frames.victory[0];
-    if (state === 'menu' || state === 'select') return loopFrame(frames.idle, SPRITE.fps.idle, player.animTime);
+    // Each character's own celebration (Arriba has a single pose).
+    if (state === 'victory') return loopFrame(frames.victory, sprite.fps.victory, player.animTime);
+    if (state === 'menu' || state === 'select') return loopFrame(frames.idle, sprite.fps.idle, player.animTime);
     if (player.landTimer > 0) return frames.jump[4];
-    return loopFrame(frames.run, SPRITE.fps.run, player.animTime);
+    return loopFrame(frames.run, sprite.fps.run, player.animTime);
 }
 
 function loopFrame(frames, fps, time) {
@@ -90,8 +91,8 @@ function hurtPlayer(player) {
     player.invulnerable = CONFIG.player.invulnerableTime;
 }
 
-function drawPlayer(ctx, image, player, state, groundY) {
+function drawPlayer(ctx, image, sprite, player, state, groundY) {
     // Blink while invulnerable so the player can see they are safe.
     if (state === 'playing' && player.invulnerable > 0 && Math.floor(player.invulnerable * 10) % 2 === 1) return;
-    drawSpriteFrame(ctx, image, getPlayerFrame(player, state), player.x, groundY - player.y);
+    drawSpriteFrame(ctx, image, getPlayerFrame(player, state, sprite), player.x, groundY - player.y, sprite.scale);
 }

@@ -19,15 +19,16 @@
      unlockScene index in SCENES (0 = Avenida Paulista ... 5 = The Office) whose
                  completion unlocks a 'locked' character. null = not decided yet,
                  so the character stays locked.
-     playable    true only when the character has its own gameplay sprite sheet.
-                 An unlocked character without one can be picked on this screen
-                 but cannot start a run yet ("coming soon"). */
+     playable    true only when the character has its own gameplay sprite sheet
+                 (see SPRITES in sprite.js). An unlocked character without one
+                 can be picked on this screen but cannot start a run yet
+                 ("coming soon"). */
 const CHARACTERS = [
     { id: 'arriba',          name: 'Arriba',          status: 'available', playable: true },
-    { id: 'ariel',           name: 'Ariel',           status: 'locked',   unlockScene: null, playable: false },
-    { id: 'amaury-caldeira', name: 'Amaury Caldeira', status: 'locked',   unlockScene: null, playable: false },
-    { id: 'ana-caroline',    name: 'Ana Caroline',    status: 'locked',   unlockScene: null, playable: false },
-    { id: 'milena',          name: 'Milena',          status: 'locked',   unlockScene: null, playable: false },
+    { id: 'ariel',           name: 'Ariel',           status: 'locked',   unlockScene: null, playable: true },
+    { id: 'amaury-caldeira', name: 'Amaury Caldeira', status: 'locked',   unlockScene: null, playable: true },
+    { id: 'ana-caroline',    name: 'Ana Caroline',    status: 'locked',   unlockScene: null, playable: true },
+    { id: 'milena',          name: 'Milena',          status: 'locked',   unlockScene: null, playable: true },
     { id: 'ananias',         name: 'Ananias',         status: 'inactive' },
 ];
 

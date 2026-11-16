@@ -35,7 +35,7 @@ Durante a partida, a engrenagem pausa o jogo; ali só o som pode ser alterado.
 
 ## Personagens
 
-Antes de cada partida o jogador escolhe o personagem. O Arriba está disponível desde o início. Ariel, Amaury Caldeira, Ana Caroline e Milena aparecem com cadeado até serem liberados pelo progresso nas fases, e Ananias aparece como inativo. Os colegas ainda não têm animação de jogo, então aparecem como "Em breve" quando liberados.
+Antes de cada partida o jogador escolhe o personagem. O Arriba está disponível desde o início. Ariel, Amaury Caldeira, Ana Caroline e Milena aparecem com cadeado até serem liberados pelo progresso nas fases, e Ananias aparece como inativo. Cada personagem tem a sua própria animação de corrida, pulo e comemoração de vitória.
 
 As regras de cada personagem (status, fase que libera, se já é jogável) ficam na lista `CHARACTERS`, no começo de `js/characters.js`.
 
@@ -76,6 +76,7 @@ images/
   obstaculos/    objetos a pular
   characters/    folha de sprites do Arriba
     portraits/   retratos da seleção (normal | selecionado) e manifest.json
+    animations/  folhas de animação dos colegas (5 colunas × 4 linhas)
   menu/          wallpaper da tela de seleção
   ending/        cenário, rede e ondas da cena final
 ```

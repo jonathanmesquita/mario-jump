@@ -28,7 +28,7 @@
       "status": "active",
       "initiallyUnlocked": false,
       "portrait": "portrait-ariel-01.png",
-      "gameplaySprite": null
+      "gameplaySprite": "images/characters/animations/sprite-ariel-animacao-02.png"
     },
     {
       "id": "amaury-caldeira",
@@ -36,7 +36,7 @@
       "status": "active",
       "initiallyUnlocked": false,
       "portrait": "portrait-amaury-caldeira-01.png",
-      "gameplaySprite": null
+      "gameplaySprite": "images/characters/animations/sprite-amaury-caldeira-animacao-02.png"
     },
     {
       "id": "ana-caroline",
@@ -44,7 +44,7 @@
       "status": "active",
       "initiallyUnlocked": false,
       "portrait": "portrait-ana-caroline-01.png",
-      "gameplaySprite": null
+      "gameplaySprite": "images/characters/animations/sprite-ana-caroline-animacao-02.png"
     },
     {
       "id": "milena",
@@ -52,7 +52,7 @@
       "status": "active",
       "initiallyUnlocked": false,
       "portrait": "portrait-milena-01.png",
-      "gameplaySprite": null
+      "gameplaySprite": "images/characters/animations/sprite-milena-animacao-02.png"
     },
     {
       "id": "ananias",
@@ -60,7 +60,7 @@
       "status": "inactive",
       "initiallyUnlocked": false,
       "portrait": "portrait-ananias-01.png",
-      "gameplaySprite": null
+      "gameplaySprite": "images/characters/animations/sprite-ananias-animacao-02.png"
     }
   ]
 }
