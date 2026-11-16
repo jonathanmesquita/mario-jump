@@ -35,9 +35,11 @@ Durante a partida, a engrenagem pausa o jogo; ali só o som pode ser alterado.
 
 ## Personagens
 
-Antes de cada partida o jogador escolhe o personagem. O Arriba está disponível desde o início. Ariel, Amaury Caldeira, Ana Caroline e Milena aparecem com cadeado até serem liberados pelo progresso nas fases, e Ananias aparece como inativo. Cada personagem tem a sua própria animação de corrida, pulo e comemoração de vitória.
+Antes de cada partida o jogador escolhe o personagem: Arriba, Ariel, Amaury Caldeira, Ana Caroline ou Milena. Cada um tem a sua própria animação de corrida, pulo e comemoração, e o seu próprio final na praia. Ananias aparece como inativo.
 
-As regras de cada personagem (status, fase que libera, se já é jogável) ficam na lista `CHARACTERS`, no começo de `js/characters.js`.
+Há também um personagem secreto, o chefe, que aparece como "???" e só é revelado depois de vencer a campanha.
+
+As regras de cada personagem (status, se já é jogável) ficam na lista `CHARACTERS`, no começo de `js/characters.js`.
 
 ## Cenários
 

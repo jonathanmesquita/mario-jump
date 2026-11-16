@@ -350,7 +350,7 @@
 
 .character-grid {
     display: grid;
-    grid-template-columns: repeat(3, 104px);
+    grid-template-columns: repeat(4, 104px);   /* GRID_COLUMNS in characters.js */
     gap: 10px;
 }
 
@@ -405,6 +405,34 @@
     top: 4px;
     right: 4px;
     font-size: 16px;
+}
+
+/* No art yet (secret boss): a big question mark instead of the portrait. */
+.character-portrait.no-portrait {
+    position: relative;
+    background: repeating-linear-gradient(45deg, #1a2440 0 6px, #22305a 6px 12px);
+}
+
+.character-portrait.no-portrait::before {
+    content: "?";
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font: bold 2.6em/1 "Courier New", monospace;
+    color: #ffd95a;
+    text-shadow: 3px 3px 0 #000;
+}
+
+.preview-portrait.no-portrait::before {
+    font-size: 96px;
+}
+
+@media (max-width: 700px) {
+    .preview-portrait.no-portrait::before {
+        font-size: 48px;
+    }
 }
 
 /* Locked: darker, with a padlock. */
@@ -502,12 +530,12 @@
     }
 
     .character-grid {
-        grid-template-columns: repeat(3, minmax(0, 88px));
+        grid-template-columns: repeat(4, minmax(0, 76px));
         gap: 6px;
     }
 
     .character-card .character-portrait {
-        width: 60px;
+        width: 54px;
     }
 
     .character-card {

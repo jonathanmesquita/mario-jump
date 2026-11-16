@@ -183,9 +183,10 @@ function getSpeedFactor() {
 function winGame() {
     playSound('win');
     roster.completeScene(game.scenery.index);   // the last scene counts as completed too
+    if (settings.mode === 'campaign') roster.winCampaign();   // reveals the secret boss
     game.state = 'victory';
     game.stateTime = 0;
-    preloadEnding();
+    preloadEnding(game.character);
 
     if (game.score > game.best) {
         game.best = game.score;
@@ -211,7 +212,7 @@ function startEnding() {
     if (game.state !== 'credits') return;
     game.state = 'ending';
     game.stateTime = 0;
-    game.beach = createBeach();
+    game.beach = createBeach(game.character);
     showScreen(endingScreen);
 }
 
@@ -391,7 +392,7 @@ function update(dt) {
         updateHud();
 
         // The ending images are big: fetch them shortly before they are needed.
-        if (game.score >= getWinScore() - CONFIG.campaign.preloadBefore) preloadEnding();
+        if (game.score >= getWinScore() - CONFIG.campaign.preloadBefore) preloadEnding(game.character);
 
         if (game.score >= getWinScore()) {
             winGame();
