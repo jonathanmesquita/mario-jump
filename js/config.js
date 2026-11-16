@@ -33,7 +33,26 @@ const CONFIG = {
 
     clouds: { width: 550, height: 253, speed: 80, y: 0 },
 
+    // Campaign: clearing this many obstacles wins the game.
+    // 60 = six sceneries x 10 obstacles each (scenery.pointsPerScene).
+    campaign: {
+        obstaclesToWin: 60,
+        victoryTime: 3,      // how long the "course complete" banner stays before the credits
+        preloadBefore: 10,   // start downloading the ending images this many obstacles before the end
+    },
+
+    credits: {
+        speed: 55,           // scroll speed of the credits
+        fadeTime: 0.6,       // the frozen game fades to black behind them
+        bottomMargin: 64,    // strip at the bottom kept free for the skip button
+        pageTime: 2.8,       // reduced motion: seconds per page instead of scrolling
+    },
+
+    ending: {
+        fadeTime: 1.2,       // the beach fades in
+    },
+
     maxDelta: 1 / 30,        // longest step simulated in one frame (tab switch, lag spike)
-    restartDelay: 0.4,       // ignore input right after game over, so a late jump press doesn't restart
+    restartDelay: 0.4,       // ignore input right after a screen appears, so a late jump press doesn't act on it
     storageKey: 'mario-jump.best',
 };
