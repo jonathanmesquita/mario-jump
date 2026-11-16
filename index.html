@@ -21,6 +21,7 @@
     <script src="./js/collision.js" defer></script>
     <script src="./js/scenes.js" defer></script>
     <script src="./js/ending.js" defer></script>
+    <script src="./js/characters.js" defer></script>
     <script src="./js/game.js" defer></script>
 
     <title>Arriba Jump</title>
@@ -51,6 +52,26 @@
             <button type="button" class="btn btn-play" data-i18n="play">Jogar</button>
             <p class="hint" data-i18n="menuHint">Espaço, ↑ ou toque para pular.</p>
             <div class="languages" role="group" data-i18n-label="language" aria-label="Idioma"></div>
+        </div>
+
+        <!-- Character selection: between the main menu and the game -->
+        <div class="screen screen-select" hidden>
+            <h2 data-i18n="chooseCharacter">Escolha seu personagem</h2>
+            <div class="select-body">
+                <div class="select-preview">
+                    <div class="character-portrait preview-portrait" data-selected="true"></div>
+                    <div class="preview-text">
+                        <p class="preview-name"></p>
+                        <p class="preview-status" role="status"></p>
+                    </div>
+                </div>
+                <div class="character-grid" role="group" data-i18n-label="chooseCharacter" aria-label="Escolha seu personagem"></div>
+            </div>
+            <div class="buttons">
+                <button type="button" class="btn btn-select-play" data-i18n="play">Jogar</button>
+                <button type="button" class="btn btn-menu btn-select-back" data-i18n="back">Voltar</button>
+            </div>
+            <p class="hint select-hint" data-i18n="selectHint">Setas para navegar</p>
         </div>
 
         <!-- Settings (from the menu) and pause (during the game) share this screen -->
