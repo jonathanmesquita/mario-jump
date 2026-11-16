@@ -1,7 +1,9 @@
 /* Game: owns the state machine, the score, the lives, the loop and the rendering.
 
    States:
-     menu     --play-->               playing
+     menu     --play-->               select    (character selection)
+     select   --play-->               playing
+     select   --back or Esc-->        menu
      playing  --no lives left-->      gameover
      playing  --course complete-->    victory   (banner over the frozen game)
      victory  --a few seconds-->      credits   (scrolling credits, can be skipped)
@@ -25,8 +27,9 @@ const victoryScreen = document.querySelector('.screen-victory');
 const creditsScreen = document.querySelector('.screen-credits');
 const endingScreen = document.querySelector('.screen-ending');
 const settingsScreen = document.querySelector('.screen-settings');
+const selectScreen = document.querySelector('.screen-select');
 const gearButton = document.querySelector('.btn-gear');
-const screens = [menuScreen, gameOverScreen, victoryScreen, creditsScreen, endingScreen, settingsScreen];
+const screens = [menuScreen, gameOverScreen, victoryScreen, creditsScreen, endingScreen, settingsScreen, selectScreen];
 
 // Add ?debug to the URL to see the hitboxes.
 const DEBUG = new URLSearchParams(location.search).has('debug');
@@ -77,6 +80,15 @@ function showMenu() {
     game.state = 'menu';
     document.querySelector('.menu-best').textContent = game.best;
     showScreen(menuScreen);
+}
+
+/* Character selection, between the menu and the game. */
+function openCharacterSelect() {
+    game.state = 'select';
+    characterSelect.message = '';
+    characterSelect.refresh();
+    showScreen(selectScreen);
+    characterSelect.focusSelected();
 }
 
 function startGame() {
@@ -134,6 +146,7 @@ function getSpeedFactor() {
 /* The course is complete: obstacles, score and timer stop here. */
 function winGame() {
     playSound('win');
+    roster.completeScene(game.scenery.index);   // the last scene counts as completed too
     game.state = 'victory';
     game.stateTime = 0;
     preloadEnding();
@@ -234,7 +247,7 @@ function canAct(state) {
 
 /* source is 'key' or 'pointer' (see input.js). */
 function handlePress(source) {
-    if (game.state === 'menu') startGame();
+    if (game.state === 'menu') openCharacterSelect();
     else if (canAct('victory')) startCredits();
     // On the screens below a tap must hit a button; only keys act directly.
     else if (source !== 'key') return;
@@ -246,6 +259,7 @@ function handlePress(source) {
 function handleCancel() {
     if (canLeaveGameOver() || canAct('ending')) showMenu();
     else if (canAct('credits')) startEnding();
+    else if (game.state === 'select') showMenu();
     else if (game.state === 'playing') openSettings();
     else closeSettings();
 }
@@ -300,7 +314,7 @@ function update(dt) {
     // Paused or in the settings: nothing moves.
     if (game.state === 'paused' || game.state === 'settings') return;
 
-    if (game.state === 'menu') {
+    if (game.state === 'menu' || game.state === 'select') {
         game.player.animTime += dt;   // idle animation only
         return;
     }
@@ -352,6 +366,7 @@ function update(dt) {
     if (updateScenery(game.scenery, dt, game.score, CONFIG.obstacles.speed * speedFactor)) {
         playSound('scene');
         showSceneName();
+        roster.completeScene(game.scenery.previous);   // may unlock a character
         retypeObstacles(game.obstacles, getSceneObstacles(), game.player.x + 250);
     }
 
@@ -438,6 +453,10 @@ function loadImage(src) {
 async function boot() {
     i18n.init(document.querySelector('.languages'));
     settings.load();
+    roster.load();
+    characterSelect.build(document.querySelector('.character-grid'));
+    characterSelect.onConfirm = () => { if (game.state === 'select') startGame(); };
+    preloadPortraits();
 
     try {
         images.sprite = await loadImage(SPRITE.src);
@@ -480,7 +499,11 @@ async function boot() {
     }
     // Leaving the tab in the middle of a run pauses it.
     document.addEventListener('visibilitychange', () => { if (document.hidden && game.state === 'playing') openSettings(); });
-    document.querySelector('.btn-play').addEventListener('click', startGame);
+    document.querySelector('.btn-play').addEventListener('click', openCharacterSelect);
+    document.querySelector('.btn-select-play').addEventListener('click', () => {
+        if (game.state === 'select' && roster.canPlay(roster.get(roster.selected))) startGame();
+    });
+    document.querySelector('.btn-select-back').addEventListener('click', showMenu);
     document.querySelector('.btn-retry').addEventListener('click', () => { if (canLeaveGameOver()) startGame(); });
     document.querySelector('.screen-gameover .btn-menu').addEventListener('click', () => { if (canLeaveGameOver()) showMenu(); });
     document.querySelector('.btn-skip').addEventListener('click', startEnding);

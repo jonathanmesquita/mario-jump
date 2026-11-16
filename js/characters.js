@@ -1,0 +1,196 @@
+/* Character system: the roster, unlocks by progress, and the selection screen.
+
+   Portraits: one PNG per character, 1774x887, two square cells of 887x887.
+   The left half is the normal expression, the right half the "selected" one.
+   CSS shows one half at a time (see .character-portrait in style.css).
+
+   Each character:
+     id          unique key
+     name        proper name, the same in every language
+     portrait    path of the two-expression PNG
+     status      'available' = playable from the start
+                 'locked'    = unlocked by completing a scene (see unlockScene)
+                 'inactive'  = shown grey with an X, never selectable or unlockable
+     unlockScene index in SCENES (0 = Avenida Paulista ... 5 = The Office) whose
+                 completion unlocks a 'locked' character. null = not decided yet,
+                 so the character stays locked.
+     playable    true only when the character has its own gameplay sprite sheet.
+                 An unlocked character without one can be picked on this screen
+                 but cannot start a run yet ("coming soon"). */
+const CHARACTERS = [
+    { id: 'arriba',          name: 'Arriba',          status: 'available', playable: true },
+    { id: 'ariel',           name: 'Ariel',           status: 'locked',   unlockScene: null, playable: false },
+    { id: 'amaury-caldeira', name: 'Amaury Caldeira', status: 'locked',   unlockScene: null, playable: false },
+    { id: 'ana-caroline',    name: 'Ana Caroline',    status: 'locked',   unlockScene: null, playable: false },
+    { id: 'milena',          name: 'Milena',          status: 'locked',   unlockScene: null, playable: false },
+    { id: 'ananias',         name: 'Ananias',         status: 'inactive' },
+];
+
+for (const character of CHARACTERS) {
+    character.portrait = `./images/characters/portraits/portrait-${character.id}-01.png`;
+}
+
+/* CSS url() inside a custom property is resolved against the stylesheet
+   (css/), not the page, so the portrait path is made absolute first. */
+function portraitUrl(character) {
+    return `url("${new URL(character.portrait, document.baseURI).href}")`;
+}
+
+const DEFAULT_CHARACTER = 'arriba';
+const CHARACTER_STORAGE_KEY = 'arriba-jump.characters';
+const GRID_COLUMNS = 3;
+
+/* ---------- progress ---------- */
+
+const roster = {
+    selected: DEFAULT_CHARACTER,
+    completedScenes: [],   // indexes of SCENES the player has completed at least once
+
+    load() {
+        try {
+            const saved = JSON.parse(localStorage.getItem(CHARACTER_STORAGE_KEY)) || {};
+            if (Array.isArray(saved.completedScenes)) {
+                this.completedScenes = saved.completedScenes.filter(Number.isInteger);
+            }
+            if (saved.selected && this.canPlay(this.get(saved.selected))) this.selected = saved.selected;
+        } catch (error) {
+            /* nothing saved, or storage blocked: start from scratch */
+        }
+    },
+
+    save() {
+        try {
+            localStorage.setItem(CHARACTER_STORAGE_KEY, JSON.stringify({
+                selected: this.selected,
+                completedScenes: this.completedScenes,
+            }));
+        } catch (error) {
+            /* progress just won't be remembered */
+        }
+    },
+
+    get(id) {
+        return CHARACTERS.find((character) => character.id === id);
+    },
+
+    /* 'available', 'locked' or 'inactive'. */
+    statusOf(character) {
+        if (!character || character.status === 'inactive') return 'inactive';
+        if (character.status === 'available') return 'available';
+        const unlocked = character.unlockScene !== null && character.unlockScene !== undefined
+            && this.completedScenes.includes(character.unlockScene);
+        return unlocked ? 'available' : 'locked';
+    },
+
+    canPlay(character) {
+        return this.statusOf(character) === 'available' && character.playable === true;
+    },
+
+    /* Records a completed scene. Returns the characters it unlocked, if any. */
+    completeScene(index) {
+        if (index < 0 || this.completedScenes.includes(index)) return [];
+        const lockedBefore = CHARACTERS.filter((character) => this.statusOf(character) === 'locked');
+        this.completedScenes.push(index);
+        this.save();
+        return lockedBefore.filter((character) => this.statusOf(character) === 'available');
+    },
+};
+
+/* ---------- selection screen ---------- */
+
+const characterSelect = {
+    grid: null,
+    cards: [],
+    message: '',        // explains why a locked / inactive card can't be picked
+    onChange: null,     // set by game.js
+    onConfirm: null,    // set by game.js: choosing the already chosen character starts the game
+
+    /* Builds one card per character, once. */
+    build(grid) {
+        this.grid = grid;
+        for (const character of CHARACTERS) {
+            const card = document.createElement('button');
+            card.type = 'button';
+            card.className = 'character-card';
+            card.dataset.id = character.id;
+            card.innerHTML = '<span class="character-portrait"></span>'
+                + '<span class="card-name"></span>'
+                + '<span class="card-badge" aria-hidden="true"></span>';
+            card.querySelector('.character-portrait').style.setProperty('--portrait-url', portraitUrl(character));
+            card.querySelector('.card-name').textContent = character.name;
+            card.addEventListener('click', () => this.choose(character.id));
+            grid.appendChild(card);
+            this.cards.push(card);
+        }
+        grid.addEventListener('keydown', (event) => this.handleArrows(event));
+    },
+
+    choose(id) {
+        const character = roster.get(id);
+        const status = roster.statusOf(character);
+        if (status === 'available') {
+            // Second Enter / click on the chosen character confirms it.
+            if (roster.selected === id && roster.canPlay(character) && this.onConfirm) {
+                this.onConfirm();
+                return;
+            }
+            roster.selected = id;
+            this.message = '';
+            if (roster.canPlay(character)) roster.save();   // only remember playable choices
+        } else {
+            this.message = `${character.name}: ${i18n.t(status === 'locked' ? 'lockedHint' : 'inactiveHint')}`;
+        }
+        this.refresh();
+        if (this.onChange) this.onChange();
+    },
+
+    /* Arrow keys move the focus around the 3-column grid. */
+    handleArrows(event) {
+        const steps = { ArrowLeft: -1, ArrowRight: 1, ArrowUp: -GRID_COLUMNS, ArrowDown: GRID_COLUMNS };
+        const step = steps[event.key];
+        if (!step) return;
+        event.preventDefault();
+        const current = this.cards.indexOf(document.activeElement);
+        const next = (Math.max(current, 0) + step + this.cards.length) % this.cards.length;
+        this.cards[next].focus();
+    },
+
+    /* Writes states, labels and the preview in the current language. */
+    refresh() {
+        const statusText = { locked: i18n.t('locked'), inactive: i18n.t('inactive'), available: '' };
+
+        for (const card of this.cards) {
+            const character = roster.get(card.dataset.id);
+            const status = roster.statusOf(character);
+            const selected = character.id === roster.selected;
+            card.classList.toggle('is-locked', status === 'locked');
+            card.classList.toggle('is-inactive', status === 'inactive');
+            card.querySelector('.character-portrait').dataset.selected = String(selected);
+            card.querySelector('.card-badge').textContent = status === 'locked' ? '🔒' : status === 'inactive' ? i18n.t('inactive') : '';
+            card.setAttribute('aria-pressed', String(selected));
+            card.setAttribute('aria-disabled', String(status !== 'available'));
+            card.setAttribute('aria-label', statusText[status] ? `${character.name}, ${statusText[status]}` : character.name);
+        }
+
+        const chosen = roster.get(roster.selected);
+        const preview = document.querySelector('.preview-portrait');
+        preview.style.setProperty('--portrait-url', portraitUrl(chosen));
+        document.querySelector('.preview-name').textContent = chosen.name;
+
+        const playable = roster.canPlay(chosen);
+        document.querySelector('.preview-status').textContent = this.message || (playable ? '' : i18n.t('comingSoon'));
+        const playButton = document.querySelector('.btn-select-play');
+        playButton.disabled = !playable;
+        playButton.textContent = i18n.t(playable ? 'play' : 'comingSoonShort');
+    },
+
+    focusSelected() {
+        const card = this.cards.find((each) => each.dataset.id === roster.selected);
+        if (card) card.focus();
+    },
+};
+
+/* Preloads the portraits so the cards don't pop in one by one. */
+function preloadPortraits() {
+    for (const character of CHARACTERS) new Image().src = character.portrait;
+}

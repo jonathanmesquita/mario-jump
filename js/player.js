@@ -64,7 +64,7 @@ function getPlayerFrame(player, state) {
     }
 
     if (state === 'victory') return frames.victory[0];
-    if (state === 'menu') return loopFrame(frames.idle, SPRITE.fps.idle, player.animTime);
+    if (state === 'menu' || state === 'select') return loopFrame(frames.idle, SPRITE.fps.idle, player.animTime);
     if (player.landTimer > 0) return frames.jump[4];
     return loopFrame(frames.run, SPRITE.fps.run, player.animTime);
 }
