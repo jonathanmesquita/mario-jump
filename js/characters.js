@@ -17,7 +17,10 @@
                  'locked'    = unlocked by completing a scene (see unlockScene)
                  'secret'    = the boss, shown as "?" with its silhouette portrait;
                  stays locked unless revealOnCampaignWin is true
-                 'inactive'  = shown grey with an X, never selectable or unlockable
+                 'inactive'  = shown grey with an X and not selectable, unless it
+                 has unlockAfterWins (hidden cheat, see below)
+     unlockAfterWins  an 'inactive' character with this becomes available
+                 after the campaign has been won that many times
      unlockScene index in SCENES (0 = Avenida Paulista ... 5 = The Office) whose
                  completion unlocks a 'locked' character. null = not decided yet,
                  so the character stays locked.
@@ -31,7 +34,8 @@ const CHARACTERS = [
     { id: 'amaury-caldeira', name: 'Amaury Caldeira', status: 'available', playable: true },
     { id: 'ana-caroline',    name: 'Ana Caroline',    status: 'available', playable: true },
     { id: 'milena',          name: 'Milena',          status: 'available', playable: true },
-    { id: 'ananias',         name: 'Ananias',         status: 'inactive' },
+    // Hidden cheat: finishing the campaign twice brings Ananias back.
+    { id: 'ananias',         name: 'Ananias',         status: 'inactive', playable: true, unlockAfterWins: 2 },
     // The secret boss. For now it always stays locked: its face, gameplay and
     // ending art do not exist yet. To reveal it later after a won campaign,
     // set revealOnCampaignWin: true, its real name and playable: true, and add
@@ -59,7 +63,7 @@ const GRID_COLUMNS = 4;   // keep in step with .character-grid in style.css
 const roster = {
     selected: DEFAULT_CHARACTER,
     completedScenes: [],   // indexes of SCENES the player has completed at least once
-    campaignWon: false,    // the campaign was finished at least once (reveals the secret character)
+    campaignWins: 0,       // how many times the campaign was finished
 
     load() {
         try {
@@ -67,7 +71,8 @@ const roster = {
             if (Array.isArray(saved.completedScenes)) {
                 this.completedScenes = saved.completedScenes.filter(Number.isInteger);
             }
-            this.campaignWon = saved.campaignWon === true;
+            if (Number.isInteger(saved.campaignWins)) this.campaignWins = saved.campaignWins;
+            else if (saved.campaignWon === true) this.campaignWins = 1;   // saved by an older version
             if (saved.selected && this.canPlay(this.get(saved.selected))) this.selected = saved.selected;
         } catch (error) {
             /* nothing saved, or storage blocked: start from scratch */
@@ -79,7 +84,7 @@ const roster = {
             localStorage.setItem(CHARACTER_STORAGE_KEY, JSON.stringify({
                 selected: this.selected,
                 completedScenes: this.completedScenes,
-                campaignWon: this.campaignWon,
+                campaignWins: this.campaignWins,
             }));
         } catch (error) {
             /* progress just won't be remembered */
@@ -92,10 +97,14 @@ const roster = {
 
     /* 'available', 'locked' or 'inactive'. */
     statusOf(character) {
-        if (!character || character.status === 'inactive') return 'inactive';
+        if (!character) return 'inactive';
+        if (character.status === 'inactive') {
+            const wins = character.unlockAfterWins;
+            return wins && this.campaignWins >= wins ? 'available' : 'inactive';
+        }
         if (character.status === 'available') return 'available';
         if (character.status === 'secret') {
-            return character.revealOnCampaignWin && this.campaignWon ? 'available' : 'locked';
+            return character.revealOnCampaignWin && this.campaignWins > 0 ? 'available' : 'locked';
         }
         const unlocked = character.unlockScene !== null && character.unlockScene !== undefined
             && this.completedScenes.includes(character.unlockScene);
@@ -108,9 +117,8 @@ const roster = {
 
     /* Records a won campaign. Returns the characters it unlocked, if any. */
     winCampaign() {
-        if (this.campaignWon) return [];
-        const lockedBefore = CHARACTERS.filter((character) => this.statusOf(character) === 'locked');
-        this.campaignWon = true;
+        const lockedBefore = CHARACTERS.filter((character) => this.statusOf(character) !== 'available');
+        this.campaignWins += 1;
         this.save();
         return lockedBefore.filter((character) => this.statusOf(character) === 'available');
     },

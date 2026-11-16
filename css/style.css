@@ -609,6 +609,18 @@
     }
 }
 
+.unlock-note {
+    padding: 4px 12px;
+    color: #1d3b1f;
+    background: #ffd95a;
+    border: 2px solid #1d3b1f;
+    box-shadow: 3px 3px 0 #000;
+}
+
+.unlock-note[hidden] {
+    display: none;
+}
+
 /* Victory banner: the frozen game stays visible behind it. */
 .screen-victory {
     background: rgba(0, 0, 0, 0.35);

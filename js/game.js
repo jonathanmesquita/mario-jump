@@ -56,6 +56,7 @@ const game = {
     obstacles: createObstacles(),
     scenery: createScenery(),
     character: 'arriba', // id of the character in this run (see characters.js)
+    unlocked: [],        // characters unlocked by the last win, announced on the ending
 };
 
 /* ---------- state ---------- */
@@ -200,7 +201,8 @@ function getSpeedFactor() {
 function winGame() {
     playSound('win');
     roster.completeScene(game.scenery.index);   // the last scene counts as completed too
-    if (settings.mode === 'campaign') roster.winCampaign();   // recorded for revealing the boss later
+    // Counting wins drives the hidden unlocks (Ananias after two wins).
+    game.unlocked = settings.mode === 'campaign' ? roster.winCampaign() : [];
     game.state = 'victory';
     game.stateTime = 0;
     preloadEnding(game.character);
@@ -230,6 +232,10 @@ function startEnding() {
     game.state = 'ending';
     game.stateTime = 0;
     game.beach = createBeach(game.character);
+    // Announce a character unlocked by this win.
+    const note = document.querySelector('.unlock-note');
+    note.hidden = game.unlocked.length === 0;
+    note.textContent = game.unlocked.map((character) => `${i18n.t('unlockedNote')}: ${character.name}!`).join(' ');
     showScreen(endingScreen);
 }
 
