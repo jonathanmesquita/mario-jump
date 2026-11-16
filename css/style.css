@@ -331,7 +331,7 @@
     /* Wallpaper with a dark navy veil so names and buttons stay readable. */
     background:
         linear-gradient(120deg, rgb(6 18 36 / 72%), rgb(8 21 42 / 62%)),
-        url("../images/menu/wallpaper-selecao-01.png") center bottom / cover no-repeat,
+        url("../images/menu/wallpaper-selecao-01.webp") center bottom / cover no-repeat,
         #11243e;
     gap: 10px;
     overflow-y: auto;

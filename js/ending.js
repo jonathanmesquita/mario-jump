@@ -24,7 +24,7 @@ const CREDITS = [
    Positions and sizes are fractions of the scenery image (0 to 1), so the
    scene keeps its layout at any screen size. */
 const ENDING = {
-    scenery: './images/ending/cenario-final-por-do-sol.png',   // 1672x941
+    scenery: './images/ending/cenario-final-por-do-sol.webp',   // 1672x941
 
     // The character of the run relaxing on the beach. Every sheet is 1774x887
     // with 8 frames on a regular 4x2 grid of square cells.
@@ -40,18 +40,18 @@ const ENDING = {
     // A character without an entry (e.g. the secret boss before its art exists)
     // falls back to Arriba.
     characters: {
-        arriba:            { image: './images/ending/sprite-arriba-final-01.png',              width: 0.31, contentBottom: 0.832, feetY: 0.988, x: 0.15 },
-        ariel:             { image: './images/ending/sprite-ariel-final-praia-01.png',         width: 0.25, contentBottom: 0.936, feetY: 0.95,  x: 0.15 },
-        'amaury-caldeira': { image: './images/ending/sprite-amaury-caldeira-final-praia-01.png', width: 0.25, contentBottom: 0.931, feetY: 0.95,  x: 0.15 },
-        'ana-caroline':    { image: './images/ending/sprite-ana-caroline-final-praia-01.png',  width: 0.25, contentBottom: 0.963, feetY: 0.95,  x: 0.15 },
-        milena:            { image: './images/ending/sprite-milena-final-praia-01.png',        width: 0.25, contentBottom: 0.961, feetY: 0.95,  x: 0.17 },
-        ananias:           { image: './images/ending/sprite-ananias-final-praia-01.png',       width: 0.25, contentBottom: 0.954, feetY: 0.95,  x: 0.15 },
+        arriba:            { image: './images/ending/sprite-arriba-final-01.webp',              width: 0.31, contentBottom: 0.832, feetY: 0.988, x: 0.15 },
+        ariel:             { image: './images/ending/sprite-ariel-final-praia-01.webp',         width: 0.25, contentBottom: 0.936, feetY: 0.95,  x: 0.15 },
+        'amaury-caldeira': { image: './images/ending/sprite-amaury-caldeira-final-praia-01.webp', width: 0.25, contentBottom: 0.931, feetY: 0.95,  x: 0.15 },
+        'ana-caroline':    { image: './images/ending/sprite-ana-caroline-final-praia-01.webp',  width: 0.25, contentBottom: 0.963, feetY: 0.95,  x: 0.15 },
+        milena:            { image: './images/ending/sprite-milena-final-praia-01.webp',        width: 0.25, contentBottom: 0.961, feetY: 0.95,  x: 0.17 },
+        ananias:           { image: './images/ending/sprite-ananias-final-praia-01.webp',       width: 0.25, contentBottom: 0.954, feetY: 0.95,  x: 0.15 },
     },
 
     // Sea: 8 strips of 412x104. They are not on a regular grid, so the
     // left edge of each column and the top edge of each row are listed.
     waves: {
-        image: './images/ending/sprite-ondas-final-01.png',    // 1774x887
+        image: './images/ending/sprite-ondas-final-01.webp',    // 1774x887
         columnsX: [16, 460, 903, 1346], rowsY: [225, 595],
         frameWidth: 411, frameHeight: 104, frames: 8, fps: 6,
         x: 0.293, y: 0.531, width: 0.622, height: 0.213,       // over the sea, centred under the sun

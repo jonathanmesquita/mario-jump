@@ -16,9 +16,9 @@
    The colleagues' tables were measured from their PNGs; re-measure them if
    a sheet is redrawn. */
 const SPRITES = {
-    // Arriba: images/characters/sprite-arriba-jump-01.png
+    // Arriba: images/characters/sprite-arriba-jump-01.webp
     arriba: {
-    src: './images/characters/sprite-arriba-jump-01.png',
+    src: './images/characters/sprite-arriba-jump-01.webp',
     scale: 0.6,                                  // sheet px -> screen px
 
     frames: {
@@ -60,7 +60,7 @@ const SPRITES = {
 
     // Ariel: garrafinha rosa
     'ariel': {
-        src: './images/characters/animations/sprite-ariel-animacao-02.png',
+        src: './images/characters/animations/sprite-ariel-animacao-02.webp',
         scale: 0.6,
         frames: {
             idle: [[107, 40, 116, 228, 60], [372, 36, 113, 232, 60], [635, 34, 114, 234, 62], [899, 42, 117, 226, 60], [1163, 42, 118, 226, 60]],
@@ -75,7 +75,7 @@ const SPRITES = {
 
     // Amaury Caldeira: banjo
     'amaury-caldeira': {
-        src: './images/characters/animations/sprite-amaury-caldeira-animacao-02.png',
+        src: './images/characters/animations/sprite-amaury-caldeira-animacao-02.webp',
         scale: 0.6,
         frames: {
             idle: [[93, 43, 138, 225, 66], [361, 43, 139, 225, 66], [629, 39, 138, 229, 68], [899, 50, 139, 218, 69], [1173, 47, 139, 221, 67]],
@@ -90,7 +90,7 @@ const SPRITES = {
 
     // Ana Caroline: chocolate e "negativo"
     'ana-caroline': {
-        src: './images/characters/animations/sprite-ana-caroline-animacao-02.png',
+        src: './images/characters/animations/sprite-ana-caroline-animacao-02.webp',
         scale: 0.6,
         frames: {
             idle: [[115, 35, 117, 235, 59], [377, 34, 120, 236, 62], [641, 29, 121, 241, 62], [904, 37, 120, 233, 61], [1167, 35, 119, 235, 59]],
@@ -105,7 +105,7 @@ const SPRITES = {
 
     // Milena: dança
     'milena': {
-        src: './images/characters/animations/sprite-milena-animacao-02.png',
+        src: './images/characters/animations/sprite-milena-animacao-02.webp',
         scale: 0.6,
         frames: {
             idle: [[103, 32, 113, 231, 69], [368, 32, 117, 231, 71], [629, 28, 123, 235, 76], [893, 35, 123, 228, 77], [1167, 35, 116, 228, 69]],
@@ -120,7 +120,7 @@ const SPRITES = {
 
     // Ananias: computador (inactive)
     'ananias': {
-        src: './images/characters/animations/sprite-ananias-animacao-02.png',
+        src: './images/characters/animations/sprite-ananias-animacao-02.webp',
         scale: 0.6,
         frames: {
             idle: [[115, 23, 116, 245, 61], [391, 23, 116, 245, 59], [651, 21, 117, 247, 61], [910, 29, 117, 239, 61], [1176, 30, 112, 238, 58]],

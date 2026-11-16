@@ -15,12 +15,12 @@
    The art includes its own pavement, so the scenery scrolls at the same
    speed as the obstacles (otherwise they would slide over the floor). */
 const SCENES = [
-    { name: 'Avenida Paulista', image: './images/cenarios/cenario-01-masp-paulista.png', obstacles: ['cone'] },
-    { name: 'Metrô',            image: './images/cenarios/cenario-02-metro-sp.png',      obstacles: ['mochila'] },
-    { name: 'Trânsito',         image: './images/cenarios/cenario-03-transito-sp.png',   obstacles: ['cone', 'buraco'] },
-    { name: 'Paraisópolis',     image: './images/cenarios/cenario-04-paraisopolis.png',  obstacles: ['caixas', 'buraco'] },
-    { name: 'Faria Lima',       image: './images/cenarios/cenario-05-faria-lima-v2.png', obstacles: ['patinete'] },
-    { name: 'The Office',       image: './images/cenarios/cenario-06-the-office.png',    obstacles: ['impressora', 'caixas'] },
+    { name: 'Avenida Paulista', image: './images/cenarios/cenario-01-masp-paulista.webp', obstacles: ['cone'] },
+    { name: 'Metrô',            image: './images/cenarios/cenario-02-metro-sp.webp',      obstacles: ['mochila'] },
+    { name: 'Trânsito',         image: './images/cenarios/cenario-03-transito-sp.webp',   obstacles: ['cone', 'buraco'] },
+    { name: 'Paraisópolis',     image: './images/cenarios/cenario-04-paraisopolis.webp',  obstacles: ['caixas', 'buraco'] },
+    { name: 'Faria Lima',       image: './images/cenarios/cenario-05-faria-lima-v2.webp', obstacles: ['patinete'] },
+    { name: 'The Office',       image: './images/cenarios/cenario-06-the-office.webp',    obstacles: ['impressora', 'caixas'] },
 ];
 
 function createScenery() {
