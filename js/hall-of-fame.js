@@ -74,6 +74,7 @@ const hallOfFame = {
 
     render() {
         const t = (key) => i18n.t(key);
+        this.setStatus('');
         leaderboard.closeFinishedSeasons();
 
         // Highlights: this month's provisional leader and the last champion.
@@ -150,8 +151,75 @@ const hallOfFame = {
         content.innerHTML = html;
     },
 
+    /* A readable copy of the board, in the current language, followed by the
+       raw data so the same file can be loaded back. */
+    exportText() {
+        const t = (key) => i18n.t(key);
+        const name = (id) => roster.displayName(roster.get(id));
+        const visible = (rows) => rows.filter((row) => row.runs > 0 && this.isVisible(row.characterId));
+        const lines = [`ARRIBA JUMP — ${t('hallOfFame')}`, `${t('savedOn')}: ${new Date().toLocaleString(LANGUAGES[i18n.current].htmlLang)}`, ''];
+
+        const season = leaderboard.currentSeason();
+        lines.push(`${t('tabSeason').toUpperCase()} — ${this.monthName(season)}`);
+        const seasonRows = visible(leaderboard.ranked('season')).filter((row) => row.season > 0);
+        if (seasonRows.length === 0) lines.push(`  ${t('noLeaderYet')}`);
+        seasonRows.forEach((row, i) => lines.push(`  ${i + 1}. ${name(row.characterId)}: ${row.season} ${t('pointsShort')}`));
+
+        lines.push('', t('tabTotal').toUpperCase());
+        const totalRows = visible(leaderboard.ranked('total'));
+        if (totalRows.length === 0) lines.push(`  ${t('emptyBoard')}`);
+        totalRows.forEach((row, i) => lines.push(`  ${i + 1}. ${name(row.characterId)}: ${t('colTotal')} ${row.total} · `
+            + `${t('best')} ${row.best} · ${t('runs')} ${row.runs} · ${t('wins')} ${row.wins} · ${t('trophies')} ${row.trophies}`));
+
+        lines.push('', t('employeeOfMonth').toUpperCase());
+        const champions = Object.entries(leaderboard.data.champions).sort()
+            .filter(([, champion]) => this.isVisible(champion.characterId));
+        if (champions.length === 0) lines.push('  —');
+        champions.forEach(([month, champion]) => lines.push(`  ${this.monthName(month)}: ${name(champion.characterId)} (${champion.points} ${t('pointsShort')})`));
+
+        lines.push('', t('exportFooter'), '');
+        return lines.join('\n') + leaderboard.exportData();
+    },
+
+    download() {
+        const blob = new Blob([this.exportText()], { type: 'text/plain;charset=utf-8' });
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.download = `arriba-jump-placar-${seasonDateKeys(new Date()).day}.txt`;
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+        setTimeout(() => URL.revokeObjectURL(link.href), 1000);
+        this.setStatus(t('exportDone'));
+        function t(key) { return i18n.t(key); }
+    },
+
+    async upload(file) {
+        if (!file) return;
+        if (!window.confirm(i18n.t('importConfirm'))) return;
+        try {
+            leaderboard.importData(await file.text());
+            this.openRow = null;
+            this.render();
+            this.setStatus(i18n.t('importDone'));
+        } catch (error) {
+            this.setStatus(i18n.t('importError'));
+        }
+    },
+
+    setStatus(text) {
+        document.querySelector('.board-file-status').textContent = text;
+    },
+
     /* Wires the tabs and rows once. */
     init(screen) {
+        screen.querySelector('.btn-board-export').addEventListener('click', () => this.download());
+        const fileInput = screen.querySelector('.board-file-input');
+        screen.querySelector('.btn-board-import').addEventListener('click', () => fileInput.click());
+        fileInput.addEventListener('change', () => {
+            this.upload(fileInput.files[0]);
+            fileInput.value = '';   // choosing the same file again still triggers
+        });
         for (const button of screen.querySelectorAll('.board-tab')) {
             button.addEventListener('click', () => {
                 this.tab = button.dataset.tab;

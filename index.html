@@ -94,6 +94,12 @@
             </div>
             <div class="board-content" role="tabpanel"></div>
             <p class="hint" data-i18n="boardLocalNote">Placar salvo só neste navegador.</p>
+            <div class="board-files">
+                <button type="button" class="btn-small btn-board-export" data-i18n="exportBoard">Salvar placar (.txt)</button>
+                <button type="button" class="btn-small btn-board-import" data-i18n="importBoard">Carregar placar</button>
+                <input type="file" class="board-file-input" accept=".txt,.json,text/plain,application/json" hidden>
+            </div>
+            <p class="board-file-status hint" role="status"></p>
             <button type="button" class="btn btn-menu btn-board-back" data-i18n="back">Voltar</button>
         </div>
 
