@@ -171,6 +171,21 @@
     outline-offset: 2px;
 }
 
+.lang-short {
+    display: none;
+}
+
+/* Narrow phones: PT / EN / ES / FR keep the language row on one line. */
+@media (max-width: 400px) {
+    .screen-menu .lang-full {
+        display: none;
+    }
+
+    .screen-menu .lang-short {
+        display: inline;
+    }
+}
+
 .btn-lang[aria-pressed="true"],
 .btn-option[aria-pressed="true"] {
     color: #1d3b1f;
@@ -573,22 +588,30 @@
 @media (max-width: 520px) {
     .screen-menu {
         justify-content: flex-start;
-        gap: 8px;
+        gap: 6px;
         padding-top: 12px;
     }
 
-    .screen-menu h1 {
-        font-size: 30px;
-        padding: 0 44px;          /* keeps the title clear of the gear button */
+    .screen.screen-menu h1 {
+        font-size: 24px;
+        letter-spacing: 1px;
+        white-space: nowrap;
+        padding: 0 40px;          /* keeps the title clear of the gear button */
     }
 
     .screen-menu .hint {
         display: none;
     }
 
+    /* Jogar on its own row, the two other buttons side by side below it. */
     .screen-menu .buttons {
-        flex-wrap: nowrap;
-        gap: 8px;
+        display: grid;
+        grid-template-columns: auto auto;
+        gap: 6px;
+    }
+
+    .screen-menu .btn-play {
+        grid-column: 1 / -1;
     }
 
     .screen-menu .btn {
@@ -603,6 +626,7 @@
     }
 
     .screen-menu .btn-lang {
+        min-width: 44px;
         min-height: 32px;
         padding: 4px 8px;
         font-size: 12px;
@@ -619,6 +643,283 @@
 
 .unlock-note[hidden] {
     display: none;
+}
+
+/* ---------- Hall of Fame ---------- */
+
+.screen-board {
+    justify-content: flex-start;
+    gap: 8px;
+    padding: 14px 16px;
+    overflow-y: auto;
+    background: rgba(6, 12, 24, 0.86);
+}
+
+.screen-board h2 {
+    color: #ffd95a;
+    font-size: 34px;
+    text-shadow: 0 4px 0 #1d3b1f, 0 0 10px rgba(255, 210, 74, 0.4);
+}
+
+.board-subtitle {
+    margin-top: -6px;
+    font-size: 14px;
+    color: #cfe8d0;
+}
+
+.board-highlights {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 10px;
+}
+
+.board-card {
+    min-width: 240px;
+    max-width: 380px;
+    padding: 6px 12px;
+    text-align: left;
+    font-size: 14px;
+    background: rgba(29, 59, 31, 0.6);
+    border: 3px solid #5a7a5a;
+    box-shadow: 4px 4px 0 #000;
+}
+
+.board-card-champion {
+    border-color: #ffd95a;
+}
+
+.board-card-label {
+    font-size: 12px;
+    color: #ffd95a;
+    text-transform: uppercase;
+}
+
+.board-card-body {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.board-card-name {
+    font-size: 16px;
+}
+
+.board-card-empty,
+.board-card-message {
+    font-size: 12px;
+    font-weight: normal;
+}
+
+.board-portrait {
+    width: 40px;
+    flex: none;
+}
+
+.trophy {
+    flex: none;
+    image-rendering: pixelated;
+    animation: trophy-shine 2.4s steps(4) infinite;
+}
+
+@keyframes trophy-shine {
+    50% { filter: brightness(1.25) drop-shadow(0 0 3px #ffd95a); }
+}
+
+.board-tabs {
+    display: flex;
+    gap: 6px;
+}
+
+.board-tab {
+    min-height: 36px;
+    padding: 6px 12px;
+    font: bold 14px/1 "Courier New", monospace;
+    color: #fff;
+    background: rgba(0, 0, 0, 0.5);
+    border: 2px solid #fff;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.board-tab[aria-selected="true"] {
+    color: #1d3b1f;
+    background: #ffd95a;
+    border-color: #1d3b1f;
+}
+
+.board-tab:focus-visible,
+.board-row:focus-visible {
+    outline: 2px solid #fff;
+    outline-offset: 2px;
+}
+
+.board-content {
+    width: 100%;
+    max-width: 560px;
+}
+
+.board-empty {
+    padding: 18px;
+    color: #ffd95a;
+    border: 3px dashed #5a7a5a;
+}
+
+/* Podium: 2nd, 1st, 3rd, with the winner standing tallest. */
+.podium {
+    display: flex;
+    justify-content: center;
+    align-items: flex-end;
+    gap: 8px;
+    margin-bottom: 8px;
+}
+
+.podium-place {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 110px;
+    font-size: 12px;
+}
+
+.podium-portrait {
+    width: 52px;
+}
+
+.podium-1 .podium-portrait {
+    width: 64px;
+}
+
+.podium-value {
+    color: #ffd95a;
+}
+
+.podium-block {
+    width: 100%;
+    margin-top: 2px;
+    padding-top: 4px;
+    font-size: 18px;
+    color: #1d3b1f;
+    background: #c98a12;
+    border: 3px solid #2a1a00;
+    border-bottom: 0;
+}
+
+.podium-1 .podium-block { height: 44px; background: #ffd24a; }
+.podium-2 .podium-block { height: 32px; background: #cfd6dc; }
+.podium-3 .podium-block { height: 22px; background: #c98a12; }
+
+/* List: one row per character; a row opens its details. */
+.board-list {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+}
+
+.board-row {
+    display: grid;
+    grid-template-columns: 26px 1fr 78px 78px 70px;
+    align-items: center;
+    gap: 6px;
+    width: 100%;
+    padding: 3px 6px;
+    font: bold 13px/1.2 "Courier New", monospace;
+    text-align: right;
+    color: #fff;
+    background: rgba(0, 0, 0, 0.45);
+    border: 2px solid #3a4a5a;
+}
+
+button.board-row {
+    cursor: pointer;
+}
+
+button.board-row:hover {
+    border-color: #ffd95a;
+}
+
+.board-head {
+    font-size: 11px;
+    color: #ffd95a;
+    background: none;
+    border-color: transparent;
+}
+
+.board-row > span:first-child,
+.board-who {
+    text-align: left;
+}
+
+.board-who {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    overflow: hidden;
+    white-space: nowrap;
+}
+
+.list-portrait {
+    width: 26px;
+    flex: none;
+}
+
+.board-name {
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.board-detail {
+    padding: 4px 8px;
+    font-size: 12px;
+    font-weight: normal;
+    text-align: left;
+    background: rgba(255, 217, 90, 0.15);
+    border: 2px solid #ffd95a;
+}
+
+.board-note {
+    color: #ffd95a;
+}
+
+.board-note[hidden] {
+    display: none;
+}
+
+@media (max-width: 520px) {
+    .screen.screen-board h2 {
+        font-size: 24px;
+        white-space: nowrap;
+    }
+
+    .board-card {
+        min-width: 0;
+        width: 100%;
+    }
+
+    .board-tab {
+        padding: 6px 8px;
+        font-size: 12px;
+    }
+
+    .podium-place {
+        width: 84px;
+        font-size: 11px;
+    }
+
+    .board-row {
+        grid-template-columns: 18px 1fr 54px 54px 46px;
+        gap: 4px;
+        font-size: 11px;
+        padding: 3px 4px;
+    }
+
+    .board-head {
+        font-size: 9px;
+    }
+
+    .list-portrait {
+        width: 20px;
+    }
 }
 
 /* Victory banner: the frozen game stays visible behind it. */
@@ -682,7 +983,8 @@
 
 /* People who asked their system for less motion get no fades. */
 @media (prefers-reduced-motion: reduce) {
-    .character-card[aria-pressed="true"] {
+    .character-card[aria-pressed="true"],
+    .trophy {
         animation: none;
     }
 

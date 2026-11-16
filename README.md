@@ -23,6 +23,16 @@ Jogo de corrida e pulo em pixel art, feito só com HTML, CSS e JavaScript (sem f
 - **Idiomas:** Português, English, Español e Français, escolhidos no menu.
 - **Pausa:** P, Esc ou o botão de engrenagem. Sair da aba também pausa.
 
+## Placar (Hall da Fama)
+
+O botão "Placar" no menu abre o Hall da Fama, com três classificações por personagem:
+
+- **Temporada:** soma da melhor partida de cada dia no mês (horário de São Paulo). Quem lidera no fim do mês vira "Funcionário do Mês" e ganha o Troféu Sonho de Valsa, um bombom virtual. Durante o mês aparece como "Líder atual".
+- **Todos os tempos:** soma de todas as partidas.
+- **Recordes:** a melhor partida de cada personagem.
+
+Desempate da temporada: maior partida no mês e, depois, quem chegou primeiro à pontuação. O placar fica salvo só neste navegador (`localStorage`, chave `arribaJumpLeaderboardV1`); não é um ranking online.
+
 ## Configurações
 
 O botão de engrenagem, no canto da tela, abre as configurações a partir do menu:
@@ -73,6 +83,8 @@ js/
   menu-scene.js  vagão do metrô animado atrás do menu
   ending.js      créditos e cena final da praia
   characters.js  elenco, desbloqueios e tela de seleção de personagens
+  leaderboard.js regras e dados do placar (sem tela)
+  hall-of-fame.js tela do Hall da Fama e troféu em pixel art
   game.js        estados do jogo, placar, laço principal e desenho
 images/
   cenarios/      fundos de cada lugar

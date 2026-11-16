@@ -65,7 +65,7 @@ function getPlayerFrame(player, state, sprite) {
 
     // Each character's own celebration (Arriba has a single pose).
     if (state === 'victory') return loopFrame(frames.victory, sprite.fps.victory, player.animTime);
-    if (state === 'menu' || state === 'select') return loopFrame(frames.idle, sprite.fps.idle, player.animTime);
+    if (state === 'menu' || state === 'select' || state === 'board') return loopFrame(frames.idle, sprite.fps.idle, player.animTime);
     if (player.landTimer > 0) return frames.jump[4];
     return loopFrame(frames.run, sprite.fps.run, player.animTime);
 }
