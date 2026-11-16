@@ -35,7 +35,7 @@ Durante a partida, a engrenagem pausa o jogo; ali só o som pode ser alterado.
 
 ## Personagens
 
-Antes de cada partida o jogador escolhe o personagem: Arriba, Ariel, Amaury Caldeira, Ana Caroline ou Milena. Cada um tem a sua própria animação de corrida, pulo e comemoração, e o seu próprio final na praia. Ananias aparece como inativo.
+No menu, o botão "Escolher personagem" abre a seleção: Arriba, Ariel, Amaury Caldeira, Ana Caroline ou Milena. A escolha fica salva, e "Jogar" começa com o último personagem escolhido. Também dá para trocar pelo botão "Trocar personagem" no Game Over e no final. Cada um tem a sua própria animação de corrida, pulo e comemoração, e o seu próprio final na praia. Ananias aparece como inativo.
 
 Há também um sétimo espaço, marcado com "?": é o chefe secreto, que por enquanto fica sempre bloqueado.
 

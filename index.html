@@ -49,7 +49,11 @@
         <div class="screen screen-menu" hidden>
             <h1>Arriba Jump</h1>
             <p><span data-i18n="best">Recorde</span>: <span class="menu-best">0</span></p>
-            <button type="button" class="btn btn-play" data-i18n="play">Jogar</button>
+            <div class="buttons">
+                <button type="button" class="btn btn-play" data-i18n="play">Jogar</button>
+                <button type="button" class="btn btn-menu btn-characters" data-i18n="chooseCharacterButton">Escolher personagem</button>
+            </div>
+            <p class="current-character"><span data-i18n="currentCharacter">Personagem</span>: <span class="current-character-name">Arriba</span></p>
             <p class="hint" data-i18n="menuHint">Espaço, ↑ ou toque para pular.</p>
             <div class="languages" role="group" data-i18n-label="language" aria-label="Idioma"></div>
         </div>
@@ -112,6 +116,7 @@
                 <button type="button" class="btn btn-retry" data-i18n="retry">Tentar novamente</button>
                 <button type="button" class="btn btn-menu" data-i18n="mainMenu">Menu principal</button>
             </div>
+            <button type="button" class="btn-small btn-change-character" data-i18n="changeCharacter">Trocar personagem</button>
             <p class="hint" data-i18n="gameOverHint">Espaço = tentar novamente</p>
         </div>
 
@@ -143,6 +148,7 @@
                     <button type="button" class="btn btn-again" data-i18n="playAgain">Jogar novamente</button>
                     <button type="button" class="btn btn-ending-menu" data-i18n="mainMenu">Menu principal</button>
                 </div>
+                <button type="button" class="btn-small btn-change-character" data-i18n="changeCharacter">Trocar personagem</button>
                 <p class="hint" data-i18n="endingHint">Espaço = jogar novamente</p>
             </div>
         </div>
