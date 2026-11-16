@@ -7,7 +7,9 @@
      victory  --a few seconds-->      credits   (scrolling credits, can be skipped)
      credits  --end or skip-->        ending    (beach at sunset)
      gameover / ending --retry-->     playing
-     gameover / ending --main menu--> menu */
+     gameover / ending --main menu--> menu
+     menu     --gear-->               settings  --back-->    menu
+     playing  --gear, P or Esc-->     paused    --resume-->  playing */
 const board = document.querySelector('.game-board');
 const canvas = document.querySelector('.game-canvas');
 const ctx = canvas.getContext('2d');
@@ -22,7 +24,9 @@ const gameOverScreen = document.querySelector('.screen-gameover');
 const victoryScreen = document.querySelector('.screen-victory');
 const creditsScreen = document.querySelector('.screen-credits');
 const endingScreen = document.querySelector('.screen-ending');
-const screens = [menuScreen, gameOverScreen, victoryScreen, creditsScreen, endingScreen];
+const settingsScreen = document.querySelector('.screen-settings');
+const gearButton = document.querySelector('.btn-gear');
+const screens = [menuScreen, gameOverScreen, victoryScreen, creditsScreen, endingScreen, settingsScreen];
 
 // Add ?debug to the URL to see the hitboxes.
 const DEBUG = new URLSearchParams(location.search).has('debug');
@@ -40,12 +44,11 @@ const game = {
     score: 0,
     lives: CONFIG.player.lives,
     time: 0,             // seconds played in this run
-    best: loadBest(),
+    best: 0,             // best score of the current game mode
     gameOverTime: 0,     // seconds spent on the game over screen
     stateTime: 0,        // seconds spent in the current victory / credits / ending state
     credits: null,       // created when the credits start (see ending.js)
     beach: null,         // created when the beach scene starts
-    cloudsX: 0,
     player: createPlayer(),
     obstacles: createObstacles(),
     scenery: createScenery(),
@@ -69,6 +72,7 @@ function resetRun() {
 }
 
 function showMenu() {
+    game.best = loadBest();
     resetRun();
     game.state = 'menu';
     document.querySelector('.menu-best').textContent = game.best;
@@ -83,6 +87,7 @@ function startGame() {
 }
 
 function endGame() {
+    playSound('gameover');
     game.state = 'gameover';
     game.gameOverTime = 0;
 
@@ -104,6 +109,8 @@ function endGame() {
 /* Shows one full-board screen (or none) and hides the HUD behind it. */
 function showScreen(screen) {
     for (const each of screens) each.hidden = each !== screen;
+    // The gear is available on the menu and while playing.
+    gearButton.hidden = screen !== null && screen !== menuScreen;
     hud.hidden = screen !== null;
     if (screen) sceneLabel.classList.remove('show');
     // A button that was just clicked keeps keyboard focus even after its
@@ -113,12 +120,20 @@ function showScreen(screen) {
 
 /* ---------- victory, credits and ending ---------- */
 
+/* Infinite mode has no finish line. */
 function getWinScore() {
-    return CONFIG.campaign.obstaclesToWin;
+    return settings.mode === 'infinite' ? Infinity : CONFIG.campaign.obstaclesToWin;
+}
+
+/* 1 normally; grows with the score when "increasing difficulty" is on. */
+function getSpeedFactor() {
+    if (!settings.difficulty) return 1;
+    return Math.min(1 + game.score * CONFIG.difficulty.perPoint, CONFIG.difficulty.maxFactor);
 }
 
 /* The course is complete: obstacles, score and timer stop here. */
 function winGame() {
+    playSound('win');
     game.state = 'victory';
     game.stateTime = 0;
     preloadEnding();
@@ -151,6 +166,61 @@ function startEnding() {
     showScreen(endingScreen);
 }
 
+/* ---------- settings and pause ---------- */
+
+/* The gear: settings from the menu, pause during the game. */
+function openSettings() {
+    if (game.state === 'playing') game.state = 'paused';
+    else if (game.state === 'menu') game.state = 'settings';
+    else return;
+    refreshSettingsScreen();
+    showScreen(settingsScreen);
+}
+
+function closeSettings() {
+    if (game.state === 'paused') {
+        game.state = 'playing';
+        input.clear();
+        showScreen(null);
+    } else if (game.state === 'settings') {
+        showMenu();   // also reloads the best score of the chosen mode
+    }
+}
+
+function toggleSettings() {
+    if (game.state === 'paused' || game.state === 'settings') closeSettings();
+    else openSettings();
+}
+
+/* Writes the current choices (in the current language) on the screen. */
+function refreshSettingsScreen() {
+    const paused = game.state === 'paused';
+    document.querySelector('.settings-title').textContent = i18n.t(paused ? 'paused' : 'settings');
+    document.querySelector('.btn-resume').textContent = i18n.t(paused ? 'resume' : 'back');
+    document.querySelector('.btn-settings-menu').hidden = !paused;
+    document.querySelector('.settings-note').hidden = !paused;
+
+    const setToggle = (selector, value, locked) => {
+        const button = document.querySelector(selector);
+        button.textContent = i18n.t(value ? 'on' : 'off');
+        button.setAttribute('aria-pressed', String(value));
+        button.disabled = locked;
+    };
+    setToggle('.opt-sound', settings.sound, false);
+    // Changing the rules in the middle of a run would be unfair to the record.
+    setToggle('.opt-difficulty', settings.difficulty, paused);
+    for (const button of document.querySelectorAll('.opt-mode')) {
+        button.setAttribute('aria-pressed', String(button.dataset.mode === settings.mode));
+        button.disabled = paused;
+    }
+}
+
+function changeSetting(change) {
+    change();
+    settings.save();
+    refreshSettingsScreen();
+}
+
 /* ---------- input ---------- */
 
 /* The delay stops a late jump press from acting on a screen that just appeared. */
@@ -176,6 +246,8 @@ function handlePress(source) {
 function handleCancel() {
     if (canLeaveGameOver() || canAct('ending')) showMenu();
     else if (canAct('credits')) startEnding();
+    else if (game.state === 'playing') openSettings();
+    else closeSettings();
 }
 
 /* Names of the objects that may appear in the current scene. */
@@ -199,9 +271,14 @@ function updateHud() {
     bestLabel.textContent = game.best;
 }
 
+/* Each game mode keeps its own record. */
+function bestStorageKey() {
+    return settings.mode === 'infinite' ? `${CONFIG.storageKey}.infinite` : CONFIG.storageKey;
+}
+
 function loadBest() {
     try {
-        return Number(localStorage.getItem(CONFIG.storageKey)) || 0;
+        return Number(localStorage.getItem(bestStorageKey())) || 0;
     } catch (error) {
         return 0;   // storage blocked (private mode, file:// in some browsers)
     }
@@ -209,7 +286,7 @@ function loadBest() {
 
 function saveBest(value) {
     try {
-        localStorage.setItem(CONFIG.storageKey, String(value));
+        localStorage.setItem(bestStorageKey(), String(value));
     } catch (error) {
         /* not being able to save the record is not fatal */
     }
@@ -220,9 +297,8 @@ function saveBest(value) {
 function update(dt) {
     input.update(dt);
 
-    // Clouds drift in every state, as in the original game.
-    game.cloudsX -= CONFIG.clouds.speed * dt;
-    if (game.cloudsX < -CONFIG.clouds.width) game.cloudsX = world.width;
+    // Paused or in the settings: nothing moves.
+    if (game.state === 'paused' || game.state === 'settings') return;
 
     if (game.state === 'menu') {
         game.player.animTime += dt;   // idle animation only
@@ -231,7 +307,7 @@ function update(dt) {
 
     if (game.state === 'gameover') {
         game.gameOverTime += dt;      // everything stays frozen where it was
-        updateScenery(game.scenery, dt, game.score, false);   // only lets a fade finish
+        updateScenery(game.scenery, dt, game.score, 0);   // only lets a fade finish
         return;
     }
 
@@ -258,7 +334,8 @@ function update(dt) {
     game.time += dt;
     updatePlayer(game.player, dt, input.wantsJump(), input.jumpHeld);
 
-    const cleared = updateObstacles(game.obstacles, dt, world.width, game.player.x, getSceneObstacles());
+    const speedFactor = getSpeedFactor();
+    const cleared = updateObstacles(game.obstacles, dt, world.width, game.player.x, getSceneObstacles(), speedFactor);
     if (cleared > 0) {
         game.score += cleared;
         updateHud();
@@ -272,7 +349,8 @@ function update(dt) {
         }
     }
 
-    if (updateScenery(game.scenery, dt, game.score, true)) {
+    if (updateScenery(game.scenery, dt, game.score, CONFIG.obstacles.speed * speedFactor)) {
+        playSound('scene');
         showSceneName();
         retypeObstacles(game.obstacles, getSceneObstacles(), game.player.x + 250);
     }
@@ -281,7 +359,10 @@ function update(dt) {
         game.lives -= 1;
         updateHud();
         if (game.lives === 0) endGame();
-        else hurtPlayer(game.player);   // keeps running, blinking for a moment
+        else {
+            playSound('hit');
+            hurtPlayer(game.player);   // keeps running, blinking for a moment
+        }
     }
 }
 
@@ -296,7 +377,7 @@ function render() {
         return;
     }
 
-    drawScenery(ctx, game.scenery, images.scenes, images.clouds, game.cloudsX, world);
+    drawScenery(ctx, game.scenery, images.scenes, world);
 
     drawObstacles(ctx, images.obstacles, game.obstacles, groundY);
     // He keeps the victory pose while the credits fade in.
@@ -356,12 +437,10 @@ function loadImage(src) {
 
 async function boot() {
     i18n.init(document.querySelector('.languages'));
+    settings.load();
 
     try {
-        [images.sprite, images.clouds] = await Promise.all([
-            loadImage(SPRITE.src),
-            loadImage('./images/cenarios/clouds.png'),
-        ]);
+        images.sprite = await loadImage(SPRITE.src);
         await Promise.all(Object.keys(OBSTACLE_TYPES).map(async (name) => {
             images.obstacles[name] = await loadImage(OBSTACLE_TYPES[name].image);
         }));
@@ -386,13 +465,24 @@ async function boot() {
     resizeCanvas();
     window.addEventListener('resize', resizeCanvas);
 
-    game.cloudsX = world.width;
     input.init(board);
     input.onPress = handlePress;
     input.onCancel = handleCancel;
+    input.onPause = () => { if (['playing', 'paused'].includes(game.state)) toggleSettings(); };
+
+    gearButton.addEventListener('click', toggleSettings);
+    document.querySelector('.btn-resume').addEventListener('click', closeSettings);
+    document.querySelector('.btn-settings-menu').addEventListener('click', showMenu);
+    document.querySelector('.opt-sound').addEventListener('click', () => changeSetting(() => { settings.sound = !settings.sound; }));
+    document.querySelector('.opt-difficulty').addEventListener('click', () => changeSetting(() => { settings.difficulty = !settings.difficulty; }));
+    for (const button of document.querySelectorAll('.opt-mode')) {
+        button.addEventListener('click', () => changeSetting(() => { settings.mode = button.dataset.mode; }));
+    }
+    // Leaving the tab in the middle of a run pauses it.
+    document.addEventListener('visibilitychange', () => { if (document.hidden && game.state === 'playing') openSettings(); });
     document.querySelector('.btn-play').addEventListener('click', startGame);
     document.querySelector('.btn-retry').addEventListener('click', () => { if (canLeaveGameOver()) startGame(); });
-    document.querySelector('.btn-menu').addEventListener('click', () => { if (canLeaveGameOver()) showMenu(); });
+    document.querySelector('.screen-gameover .btn-menu').addEventListener('click', () => { if (canLeaveGameOver()) showMenu(); });
     document.querySelector('.btn-skip').addEventListener('click', startEnding);
     document.querySelector('.btn-again').addEventListener('click', () => { if (canAct('ending')) startGame(); });
     document.querySelector('.btn-ending-menu').addEventListener('click', () => { if (canAct('ending')) showMenu(); });

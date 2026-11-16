@@ -31,7 +31,12 @@ const CONFIG = {
         groundOffset: 36,    // the pavement in the art: feet stand this far above the bottom edge
     },
 
-    clouds: { width: 550, height: 253, speed: 80, y: 0 },
+    // "Increasing difficulty" setting: the game speeds up with the score.
+    difficulty: {
+        perPoint: 0.008,     // speed gained per obstacle cleared (0.008 = +0.8%)
+        maxFactor: 1.45,     // never faster than 1.45x the base speed
+        gapPower: 0.7,       // gaps grow slower than the speed, so obstacles also come sooner
+    },
 
     // Campaign: clearing this many obstacles wins the game.
     // 60 = six sceneries x 10 obstacles each (scenery.pointsPerScene).
@@ -55,5 +60,5 @@ const CONFIG = {
 
     maxDelta: 1 / 30,        // longest step simulated in one frame (tab switch, lag spike)
     restartDelay: 0.4,       // ignore input right after a screen appears, so a late jump press doesn't act on it
-    storageKey: 'mario-jump.best',
+    storageKey: 'mario-jump.best',   // best score of the campaign; infinite mode adds '.infinite'
 };

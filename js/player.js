@@ -22,6 +22,7 @@ function updatePlayer(player, dt, wantsJump, jumpHeld) {
         player.velocityY = cfg.jumpSpeed;
         player.onGround = false;
         input.jumpBuffer = 0;
+        playSound('jump');
     }
 
     // Variable jump height: letting go of the button while still rising

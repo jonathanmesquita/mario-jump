@@ -12,6 +12,8 @@
          what the files above it define. -->
     <script src="./js/config.js" defer></script>
     <script src="./js/i18n.js" defer></script>
+    <script src="./js/settings.js" defer></script>
+    <script src="./js/audio.js" defer></script>
     <script src="./js/input.js" defer></script>
     <script src="./js/sprite.js" defer></script>
     <script src="./js/player.js" defer></script>
@@ -36,6 +38,9 @@
             &middot; <span data-i18n="best">Recorde</span>: <span class="best">0</span>
         </div>
 
+        <!-- Gear: opens the settings from the menu, pauses during the game -->
+        <button type="button" class="btn-gear" data-i18n-label="settings" aria-label="Configurações" hidden>⚙</button>
+
         <div class="scene-name"></div>
         <div class="message" role="status"></div>
 
@@ -46,6 +51,30 @@
             <button type="button" class="btn btn-play" data-i18n="play">Jogar</button>
             <p class="hint" data-i18n="menuHint">Espaço, ↑ ou toque para pular.</p>
             <div class="languages" role="group" data-i18n-label="language" aria-label="Idioma"></div>
+        </div>
+
+        <!-- Settings (from the menu) and pause (during the game) share this screen -->
+        <div class="screen screen-settings" hidden>
+            <h2 class="settings-title"></h2>
+            <div class="options">
+                <span data-i18n="sound">Som</span>
+                <button type="button" class="btn-option opt-sound"></button>
+
+                <span data-i18n="difficulty">Dificuldade crescente</span>
+                <button type="button" class="btn-option opt-difficulty"></button>
+
+                <span data-i18n="mode">Modo de jogo</span>
+                <span class="option-group">
+                    <button type="button" class="btn-option opt-mode" data-mode="campaign" data-i18n="modeCampaign">Campanha</button>
+                    <button type="button" class="btn-option opt-mode" data-mode="infinite" data-i18n="modeInfinite">Infinito</button>
+                </span>
+            </div>
+            <p class="hint settings-note" data-i18n="menuOnly" hidden></p>
+            <div class="buttons">
+                <button type="button" class="btn btn-resume"></button>
+                <button type="button" class="btn btn-menu btn-settings-menu" data-i18n="mainMenu">Menu principal</button>
+            </div>
+            <p class="hint" data-i18n="settingsHint">P ou Esc = pausar e continuar</p>
         </div>
 
         <!-- Game over -->
