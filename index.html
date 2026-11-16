@@ -23,6 +23,8 @@
     <script src="./js/menu-scene.js" defer></script>
     <script src="./js/ending.js" defer></script>
     <script src="./js/characters.js" defer></script>
+    <script src="./js/leaderboard.js" defer></script>
+    <script src="./js/hall-of-fame.js" defer></script>
     <script src="./js/game.js" defer></script>
 
     <title>Arriba Jump</title>
@@ -53,6 +55,7 @@
             <div class="buttons">
                 <button type="button" class="btn btn-play" data-i18n="play">Jogar</button>
                 <button type="button" class="btn btn-menu btn-characters" data-i18n="chooseCharacterButton">Escolher personagem</button>
+                <button type="button" class="btn btn-menu btn-board" data-i18n="board">Placar</button>
             </div>
             <p class="current-character"><span data-i18n="currentCharacter">Personagem</span>: <span class="current-character-name">Arriba</span></p>
             <p class="hint" data-i18n="menuHint">Espaço, ↑ ou toque para pular.</p>
@@ -77,6 +80,21 @@
                 <button type="button" class="btn btn-menu btn-select-back" data-i18n="back">Voltar</button>
             </div>
             <p class="hint select-hint" data-i18n="selectHint">Setas para navegar</p>
+        </div>
+
+        <!-- Hall of Fame: local leaderboard per character (see leaderboard.js) -->
+        <div class="screen screen-board" hidden>
+            <h2 data-i18n="hallOfFame">HALL DA FAMA</h2>
+            <p class="board-subtitle" data-i18n="hallSubtitle">Quem merece o Sonho de Valsa?</p>
+            <div class="board-highlights"></div>
+            <div class="board-tabs" role="tablist" data-i18n-label="board" aria-label="Placar">
+                <button type="button" class="board-tab" role="tab" data-tab="season" data-i18n="tabSeason">Temporada</button>
+                <button type="button" class="board-tab" role="tab" data-tab="total" data-i18n="tabTotal">Todos os tempos</button>
+                <button type="button" class="board-tab" role="tab" data-tab="best" data-i18n="tabBest">Recordes</button>
+            </div>
+            <div class="board-content" role="tabpanel"></div>
+            <p class="hint" data-i18n="boardLocalNote">Placar salvo só neste navegador.</p>
+            <button type="button" class="btn btn-menu btn-board-back" data-i18n="back">Voltar</button>
         </div>
 
         <!-- Settings (from the menu) and pause (during the game) share this screen -->
@@ -113,6 +131,7 @@
                 &middot; <span data-i18n="reached">Chegou até</span>: <span class="final-place"></span>
             </p>
             <p class="new-record" data-i18n="newRecord" hidden>Novo recorde!</p>
+            <p class="board-note" role="status" hidden></p>
             <div class="buttons">
                 <button type="button" class="btn btn-retry" data-i18n="retry">Tentar novamente</button>
                 <button type="button" class="btn btn-menu" data-i18n="mainMenu">Menu principal</button>
@@ -144,6 +163,7 @@
                     &middot; <span data-i18n="time">Tempo</span>: <span class="win-time">0</span>s
                 </p>
                 <p class="unlock-note" role="status" hidden></p>
+                <p class="board-note" role="status" hidden></p>
             </div>
             <div>
                 <div class="buttons">

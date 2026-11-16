@@ -28,8 +28,9 @@ const creditsScreen = document.querySelector('.screen-credits');
 const endingScreen = document.querySelector('.screen-ending');
 const settingsScreen = document.querySelector('.screen-settings');
 const selectScreen = document.querySelector('.screen-select');
+const boardScreen = document.querySelector('.screen-board');
 const gearButton = document.querySelector('.btn-gear');
-const screens = [menuScreen, gameOverScreen, victoryScreen, creditsScreen, endingScreen, settingsScreen, selectScreen];
+const screens = [menuScreen, gameOverScreen, victoryScreen, creditsScreen, endingScreen, settingsScreen, selectScreen, boardScreen];
 
 // Add ?debug to the URL to see the hitboxes.
 const DEBUG = new URLSearchParams(location.search).has('debug');
@@ -57,6 +58,9 @@ const game = {
     scenery: createScenery(),
     character: 'arriba', // id of the character in this run (see characters.js)
     unlocked: [],        // characters unlocked by the last win, announced on the ending
+    runId: '',           // unique id of the current run, so the leaderboard counts it once
+    runRecorded: false,  // the current run is already in the leaderboard
+    boardResult: null,   // what the leaderboard said about the last finished run
 };
 
 /* ---------- state ---------- */
@@ -139,7 +143,7 @@ async function startWithSelectedCharacter() {
 /* The character drawn on screen: the one of this run, or while choosing,
    the one being chosen (if its sheet is already loaded). Arriba otherwise. */
 function getShownCharacter() {
-    const id = ['menu', 'select'].includes(game.state) ? roster.selected : game.character;
+    const id = ['menu', 'select', 'board'].includes(game.state) ? roster.selected : game.character;
     return images.characters[id] ? id : 'arriba';
 }
 
@@ -147,13 +151,50 @@ function startGame() {
     const chosen = roster.get(roster.selected);
     game.character = roster.canPlay(chosen) && images.characters[chosen.id] ? chosen.id : 'arriba';
     resetRun();
+    game.runId = newRunId();
+    game.runRecorded = false;
     game.state = 'playing';
     showScreen(null);
     showSceneName();
 }
 
+/* Hall of Fame: records the finished run, once. */
+function recordRun(completed) {
+    if (game.runRecorded || !game.runId) return null;
+    game.runRecorded = true;
+    return leaderboard.recordRun({
+        runId: game.runId,
+        characterId: game.character,
+        score: game.score,
+        durationSeconds: Math.round(game.time),
+        completed,
+        mode: settings.mode,
+    });
+}
+
+/* Shows "new character record" / "you took the lead" under a result screen. */
+function showBoardNote(screen, result) {
+    const note = screen.querySelector('.board-note');
+    const lines = [];
+    if (result && result.newCharacterBest) lines.push(i18n.t('characterRecord'));
+    if (result && result.tookLead) lines.push(i18n.t('tookLead'));
+    note.textContent = lines.join(' ');
+    note.hidden = lines.length === 0;
+}
+
+function openBoard() {
+    if (game.state !== 'menu') return;
+    game.state = 'board';
+    hallOfFame.openRow = null;
+    hallOfFame.render();
+    showScreen(boardScreen);
+    boardScreen.scrollTop = 0;
+    boardScreen.querySelector('.board-tab[aria-selected="true"]').focus();
+}
+
 function endGame() {
     playSound('gameover');
+    game.boardResult = recordRun(false);
     game.state = 'gameover';
     game.gameOverTime = 0;
 
@@ -169,6 +210,7 @@ function endGame() {
     document.querySelector('.final-time').textContent = Math.round(game.time);
     document.querySelector('.final-place').textContent = SCENES[game.scenery.index].name;
     document.querySelector('.new-record').hidden = !isRecord;
+    showBoardNote(gameOverScreen, game.boardResult);
     showScreen(gameOverScreen);
 }
 
@@ -203,6 +245,7 @@ function winGame() {
     roster.completeScene(game.scenery.index);   // the last scene counts as completed too
     // Counting wins drives the hidden unlocks (Ananias after two wins).
     game.unlocked = settings.mode === 'campaign' ? roster.winCampaign() : [];
+    game.boardResult = recordRun(true);
     game.state = 'victory';
     game.stateTime = 0;
     preloadEnding(game.character);
@@ -236,6 +279,7 @@ function startEnding() {
     const note = document.querySelector('.unlock-note');
     note.hidden = game.unlocked.length === 0;
     note.textContent = game.unlocked.map((character) => `${i18n.t('unlockedNote')}: ${character.name}!`).join(' ');
+    showBoardNote(endingScreen, game.boardResult);
     showScreen(endingScreen);
 }
 
@@ -319,7 +363,7 @@ function handlePress(source) {
 function handleCancel() {
     if (canLeaveGameOver() || canAct('ending')) showMenu();
     else if (canAct('credits')) startEnding();
-    else if (game.state === 'select') showMenu();
+    else if (game.state === 'select' || game.state === 'board') showMenu();
     else if (game.state === 'playing') openSettings();
     else closeSettings();
 }
@@ -372,10 +416,10 @@ function update(dt) {
     input.update(dt);
 
     // Paused or in the settings: nothing moves.
-    if (['menu', 'settings', 'select'].includes(game.state)) updateMenuScene(dt);
+    if (['menu', 'settings', 'select', 'board'].includes(game.state)) updateMenuScene(dt);
     if (game.state === 'paused' || game.state === 'settings') return;
 
-    if (game.state === 'menu' || game.state === 'select') {
+    if (['menu', 'select', 'board'].includes(game.state)) {
         game.player.animTime += dt;   // idle animation only
         return;
     }
@@ -454,7 +498,7 @@ function render() {
     }
 
     // The menu screens show the metro car; the game shows the current scenery.
-    const onMenu = ['menu', 'settings', 'select'].includes(game.state);
+    const onMenu = ['menu', 'settings', 'select', 'board'].includes(game.state);
     if (!onMenu || !drawMenuScene(ctx, world)) drawScenery(ctx, game.scenery, images.scenes, world);
 
     drawObstacles(ctx, images.obstacles, game.obstacles, groundY);
@@ -519,6 +563,8 @@ async function boot() {
     i18n.init(document.querySelector('.languages'));
     settings.load();
     roster.load();
+    leaderboard.eligible = (characterId) => hallOfFame.isVisible(characterId);
+    leaderboard.load();
     characterSelect.build(document.querySelector('.character-grid'));
     characterSelect.onConfirm = startWithSelectedCharacter;
     // Start downloading a sheet as soon as its character is picked.
@@ -572,6 +618,9 @@ async function boot() {
     document.addEventListener('visibilitychange', () => { if (document.hidden && game.state === 'playing') openSettings(); });
     document.querySelector('.btn-play').addEventListener('click', startWithSelectedCharacter);
     document.querySelector('.btn-characters').addEventListener('click', openCharacterSelect);
+    document.querySelector('.btn-board').addEventListener('click', openBoard);
+    document.querySelector('.btn-board-back').addEventListener('click', showMenu);
+    hallOfFame.init(boardScreen);
     for (const button of document.querySelectorAll('.btn-change-character')) {
         button.addEventListener('click', changeCharacter);
     }
