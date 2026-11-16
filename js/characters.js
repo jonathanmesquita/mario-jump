@@ -15,7 +15,8 @@
      portrait    path of the two-expression PNG
      status      'available' = playable from the start
                  'locked'    = unlocked by completing a scene (see unlockScene)
-                 'secret'    = hidden as "???" until the campaign is won once
+                 'secret'    = the boss, shown as "?" with its silhouette portrait;
+                 stays locked unless revealOnCampaignWin is true
                  'inactive'  = shown grey with an X, never selectable or unlockable
      unlockScene index in SCENES (0 = Avenida Paulista ... 5 = The Office) whose
                  completion unlocks a 'locked' character. null = not decided yet,
@@ -31,23 +32,21 @@ const CHARACTERS = [
     { id: 'ana-caroline',    name: 'Ana Caroline',    status: 'available', playable: true },
     { id: 'milena',          name: 'Milena',          status: 'available', playable: true },
     { id: 'ananias',         name: 'Ananias',         status: 'inactive' },
-    // The boss: revealed after winning the campaign. Its art does not exist
-    // yet, so it has no portrait and is not playable ("coming soon").
-    // When the art arrives: set name, hasPortrait: true and playable: true,
-    // and add its sheets to SPRITES (sprite.js) and ENDING.characters (ending.js).
-    { id: 'chefe',           name: '???',             status: 'secret',    playable: false, hasPortrait: false },
+    // The secret boss. For now it always stays locked: its face, gameplay and
+    // ending art do not exist yet. To reveal it later after a won campaign,
+    // set revealOnCampaignWin: true, its real name and playable: true, and add
+    // its sheets to SPRITES (sprite.js) and ENDING.characters (ending.js).
+    // It is the boss, not a "random character" button.
+    { id: 'chefe-secreto',   name: '?',               status: 'secret',    playable: false, revealOnCampaignWin: false },
 ];
 
 for (const character of CHARACTERS) {
-    character.portrait = character.hasPortrait === false
-        ? null
-        : `./images/characters/portraits/portrait-${character.id}-01.png`;
+    character.portrait = `./images/characters/portraits/portrait-${character.id}-01.png`;
 }
 
 /* CSS url() inside a custom property is resolved against the stylesheet
    (css/), not the page, so the portrait path is made absolute first. */
 function portraitUrl(character) {
-    if (!character.portrait) return 'none';
     return `url("${new URL(character.portrait, document.baseURI).href}")`;
 }
 
@@ -95,7 +94,9 @@ const roster = {
     statusOf(character) {
         if (!character || character.status === 'inactive') return 'inactive';
         if (character.status === 'available') return 'available';
-        if (character.status === 'secret') return this.campaignWon ? 'available' : 'locked';
+        if (character.status === 'secret') {
+            return character.revealOnCampaignWin && this.campaignWon ? 'available' : 'locked';
+        }
         const unlocked = character.unlockScene !== null && character.unlockScene !== undefined
             && this.completedScenes.includes(character.unlockScene);
         return unlocked ? 'available' : 'locked';
@@ -114,10 +115,10 @@ const roster = {
         return lockedBefore.filter((character) => this.statusOf(character) === 'available');
     },
 
-    /* The name to show: the secret character stays "???" until revealed. */
+    /* The name to show: the secret character stays "?" until revealed. */
     displayName(character) {
         return character.status === 'secret' && this.statusOf(character) !== 'available'
-            ? '???' : character.name;
+            ? '?' : character.name;
     },
 
     /* Records a completed scene. Returns the characters it unlocked, if any. */
@@ -151,7 +152,6 @@ const characterSelect = {
                 + '<span class="card-name"></span>'
                 + '<span class="card-badge" aria-hidden="true"></span>';
             card.querySelector('.character-portrait').style.setProperty('--portrait-url', portraitUrl(character));
-            if (!character.portrait) card.querySelector('.character-portrait').classList.add('no-portrait');
             card.addEventListener('click', () => this.choose(character.id));
             grid.appendChild(card);
             this.cards.push(card);
@@ -218,7 +218,6 @@ const characterSelect = {
         const chosen = roster.get(roster.selected);
         const preview = document.querySelector('.preview-portrait');
         preview.style.setProperty('--portrait-url', portraitUrl(chosen));
-        preview.classList.toggle('no-portrait', !chosen.portrait);
         document.querySelector('.preview-name').textContent = roster.displayName(chosen);
 
         const playable = roster.canPlay(chosen);
@@ -236,7 +235,5 @@ const characterSelect = {
 
 /* Preloads the portraits so the cards don't pop in one by one. */
 function preloadPortraits() {
-    for (const character of CHARACTERS) {
-        if (character.portrait) new Image().src = character.portrait;
-    }
+    for (const character of CHARACTERS) new Image().src = character.portrait;
 }
