@@ -34,7 +34,7 @@ const CHARACTERS = [
     { id: 'amaury-caldeira', name: 'Amaury Caldeira', status: 'available', playable: true },
     { id: 'ana-caroline',    name: 'Ana Caroline',    status: 'available', playable: true },
     { id: 'milena',          name: 'Milena',          status: 'available', playable: true },
-    // Mateus Prioro: beach ending cut from his pose sheet (an armchair with a gentle bob).
+    // Mateus Prioro: the 3D-glasses armchair (beach ending sheet delivered by the author).
     { id: 'mateus-prioro',   name: 'Mateus Prioro',   status: 'available', playable: true },
     // Hidden cheat: finishing the campaign twice brings Ananias back.
     { id: 'ananias',         name: 'Ananias',         status: 'inactive', playable: true, unlockAfterWins: 2 },

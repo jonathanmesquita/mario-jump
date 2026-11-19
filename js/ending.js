@@ -45,7 +45,7 @@ const ENDING = {
         'amaury-caldeira': { image: './images/ending/sprite-amaury-caldeira-final-praia-01.webp', width: 0.25, contentBottom: 0.931, feetY: 0.95,  x: 0.15 },
         'ana-caroline':    { image: './images/ending/sprite-ana-caroline-final-praia-01.webp',  width: 0.25, contentBottom: 0.963, feetY: 0.95,  x: 0.15 },
         milena:            { image: './images/ending/sprite-milena-final-praia-01.webp',        width: 0.25, contentBottom: 0.961, feetY: 0.95,  x: 0.17 },
-        'mateus-prioro':   { image: './images/ending/sprite-mateus-prioro-final-praia-01.webp', width: 0.25, contentBottom: 0.939, feetY: 0.95,  x: 0.15 },
+        'mateus-prioro':   { image: './images/ending/sprite-matheus-prioro-final-cinema-01.webp', width: 0.25, contentBottom: 0.971, feetY: 0.95,  x: 0.15 },
         ananias:           { image: './images/ending/sprite-ananias-final-praia-01.webp',       width: 0.25, contentBottom: 0.954, feetY: 0.95,  x: 0.15 },
     },
 
