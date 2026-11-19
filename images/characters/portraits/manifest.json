@@ -56,6 +56,14 @@
       "gameplaySprite": "images/characters/animations/sprite-milena-animacao-02.webp"
     },
     {
+      "id": "mateus-prioro",
+      "name": "Mateus Prioro",
+      "status": "active",
+      "initiallyUnlocked": true,
+      "portrait": null,
+      "gameplaySprite": null
+    },
+    {
       "id": "ananias",
       "name": "Ananias",
       "status": "inactive",

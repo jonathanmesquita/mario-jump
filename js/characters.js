@@ -34,6 +34,13 @@ const CHARACTERS = [
     { id: 'amaury-caldeira', name: 'Amaury Caldeira', status: 'available', playable: true },
     { id: 'ana-caroline',    name: 'Ana Caroline',    status: 'available', playable: true },
     { id: 'milena',          name: 'Milena',          status: 'available', playable: true },
+    // Mateus Prioro: roster slot ready, but his art is not delivered yet. Until it
+    // is, he borrows the silhouette portrait and shows "coming soon". When the
+    // art exists: drop portrait-mateus-prioro-01.webp in images/characters/portraits/,
+    // remove the portrait line, set playable: true, and add his sheets to
+    // SPRITES (sprite.js) and ENDING.characters (ending.js).
+    { id: 'mateus-prioro',   name: 'Mateus Prioro',   status: 'available', playable: false,
+      portrait: './images/characters/portraits/portrait-chefe-secreto-01.webp' },
     // Hidden cheat: finishing the campaign twice brings Ananias back.
     { id: 'ananias',         name: 'Ananias',         status: 'inactive', playable: true, unlockAfterWins: 2 },
     // The secret boss. For now it always stays locked: its face, gameplay and
@@ -45,7 +52,7 @@ const CHARACTERS = [
 ];
 
 for (const character of CHARACTERS) {
-    character.portrait = `./images/characters/portraits/portrait-${character.id}-01.webp`;
+    character.portrait = character.portrait || `./images/characters/portraits/portrait-${character.id}-01.webp`;
 }
 
 /* CSS url() inside a custom property is resolved against the stylesheet
