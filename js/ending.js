@@ -59,6 +59,16 @@ const ENDING = {
         alpha: 0.9,
     },
 
+    // Fireworks and the Mario-style banner that scrolls across the screen.
+    fireworks: {
+        interval: 0.7,        // seconds between launches
+        riseTime: 0.9,        // seconds a rocket takes to reach its burst point
+        sparks: 28,
+        life: 1.5,            // seconds a spark lives
+        colors: ['#ffd95a', '#ff5a5a', '#5ad1ff', '#8cff6a', '#ff8cf0', '#ffffff'],
+    },
+    banner: { speed: 110, size: 34, gap: 120, y: 0.6 },   // px/s, px, px between repeats, fraction of height
+
     // On wide screens, how far the mirrored sides stay visible (fraction of
     // the scenery width) before they are fully black.
     sideReach: 0.28,
@@ -217,11 +227,93 @@ function createBeach(characterId) {
         character: endingCharacterId(characterId),
         time: 0,
         reduced: prefersReducedMotion(),
+        rockets: [],       // positions are fractions of the screen (0 to 1)
+        sparks: [],
+        nextLaunch: 0.3,
     };
 }
 
 function updateBeach(beach, dt) {
     beach.time += dt;
+    if (beach.reduced) return;   // no flashing or moving effects
+
+    const fw = ENDING.fireworks;
+    beach.nextLaunch -= dt;
+    if (beach.nextLaunch <= 0) {
+        beach.nextLaunch = fw.interval * (0.6 + Math.random() * 0.8);
+        const targetY = 0.12 + Math.random() * 0.3;
+        beach.rockets.push({
+            x: 0.1 + Math.random() * 0.8, y: 1, targetY,
+            speed: (1 - targetY) / fw.riseTime,
+            color: fw.colors[Math.floor(Math.random() * fw.colors.length)],
+        });
+    }
+    for (const rocket of beach.rockets) rocket.y -= rocket.speed * dt;
+    for (const rocket of beach.rockets.filter((each) => each.y <= each.targetY)) {
+        for (let i = 0; i < fw.sparks; i++) {
+            const angle = (i / fw.sparks) * Math.PI * 2;
+            const power = 0.12 + Math.random() * 0.1;
+            beach.sparks.push({
+                x: rocket.x, y: rocket.y, vx: Math.cos(angle) * power, vy: Math.sin(angle) * power,
+                age: 0, color: Math.random() < 0.3 ? '#ffffff' : rocket.color,
+            });
+        }
+    }
+    beach.rockets = beach.rockets.filter((rocket) => rocket.y > rocket.targetY);
+    for (const spark of beach.sparks) {
+        spark.age += dt;
+        spark.x += spark.vx * dt;
+        spark.y += spark.vy * dt;
+        spark.vy += 0.15 * dt;   // gravity, in screens per second squared
+    }
+    beach.sparks = beach.sparks.filter((spark) => spark.age < fw.life);
+}
+
+function drawFireworks(ctx, beach, world) {
+    const fw = ENDING.fireworks;
+    const size = Math.max(3, Math.round(world.height / 140));   // chunky pixels, like the old games
+    for (const rocket of beach.rockets) {
+        ctx.fillStyle = rocket.color;
+        ctx.fillRect(rocket.x * world.width, rocket.y * world.height, size, size * 2);
+    }
+    for (const spark of beach.sparks) {
+        ctx.globalAlpha = 1 - spark.age / fw.life;
+        ctx.fillStyle = spark.color;
+        ctx.fillRect(Math.round(spark.x * world.width), Math.round(spark.y * world.height), size, size);
+    }
+    ctx.globalAlpha = 1;
+}
+
+/* "Você saiu de férias!  Aproveite!" scrolling like the end of a Mario game. */
+function drawBanner(ctx, beach, world) {
+    const cfg = ENDING.banner;
+    const text = `${i18n.t('vacationBanner')}   ★   ${i18n.t('vacationEnjoy')}`;
+    const size = Math.round(cfg.size * Math.min(1, world.width / 620));
+    ctx.save();
+    ctx.globalAlpha = Math.min(1, beach.time / CONFIG.ending.fadeTime);
+    ctx.font = `bold ${size}px "Courier New", monospace`;
+    ctx.textAlign = 'left';
+    ctx.textBaseline = 'middle';
+    const y = world.height * cfg.y;
+    const textWidth = ctx.measureText(text).width;
+    const draw = (x) => {
+        ctx.fillStyle = '#000';
+        ctx.fillText(text, x + size / 8, y + size / 8);   // hard shadow
+        ctx.fillStyle = '#ffd95a';
+        ctx.fillText(text, x, y);
+    };
+    if (beach.reduced || textWidth > world.width * 3) {
+        ctx.textAlign = 'center';
+        ctx.fillStyle = '#ffd95a';
+        ctx.fillText(text, world.width / 2, y, world.width - 20);
+    } else {
+        // The text enters on the right, leaves on the left, and repeats.
+        const loop = textWidth + cfg.gap * (size / cfg.size);
+        const start = world.width - ((beach.time * cfg.speed) % loop);
+        for (let x = start; x < world.width; x += loop) draw(x);
+        for (let x = start - loop; x + textWidth > 0; x -= loop) draw(x);
+    }
+    ctx.restore();
 }
 
 /* Scratch canvas used to fade the edges of the wave strip. */
@@ -280,6 +372,8 @@ function drawBeach(ctx, beach, world) {
     drawWaves(ctx, beach, left, top, width, height);
     drawHammock(ctx, beach, left, top, width, height);
     ctx.globalAlpha = 1;
+    drawFireworks(ctx, beach, world);
+    drawBanner(ctx, beach, world);
 }
 
 /* Frame of a looping animation; frozen on the first one with reduced motion. */
