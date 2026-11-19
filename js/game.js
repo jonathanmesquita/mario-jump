@@ -244,11 +244,11 @@ function winGame() {
     playSound('win');
     roster.completeScene(game.scenery.index);   // the last scene counts as completed too
     // Counting wins drives the hidden unlocks (Ananias after two wins).
-    game.unlocked = settings.mode === 'campaign' ? roster.winCampaign() : [];
+    game.unlocked = settings.mode === 'campaign' ? roster.winCampaign(game.character) : [];
     game.boardResult = recordRun(true);
     game.state = 'victory';
     game.stateTime = 0;
-    preloadEnding(game.character);
+    preloadEnding(game.character, roster.wonWithEveryone());
 
     if (game.score > game.best) {
         game.best = game.score;
@@ -274,7 +274,7 @@ function startEnding() {
     if (game.state !== 'credits') return;
     game.state = 'ending';
     game.stateTime = 0;
-    game.beach = createBeach(game.character);
+    game.beach = createBeach(game.character, roster.wonWithEveryone());
     // Announce a character unlocked by this win.
     const note = document.querySelector('.unlock-note');
     note.hidden = game.unlocked.length === 0;
@@ -460,7 +460,7 @@ function update(dt) {
         updateHud();
 
         // The ending images are big: fetch them shortly before they are needed.
-        if (game.score >= getWinScore() - CONFIG.campaign.preloadBefore) preloadEnding(game.character);
+        if (game.score >= getWinScore() - CONFIG.campaign.preloadBefore) preloadEnding(game.character, roster.wonWithEveryone());
 
         if (game.score >= getWinScore()) {
             winGame();

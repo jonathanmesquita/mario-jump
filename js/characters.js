@@ -34,7 +34,7 @@ const CHARACTERS = [
     { id: 'amaury-caldeira', name: 'Amaury Caldeira', status: 'available', playable: true },
     { id: 'ana-caroline',    name: 'Ana Caroline',    status: 'available', playable: true },
     { id: 'milena',          name: 'Milena',          status: 'available', playable: true },
-    // Mateus Prioro has no beach sheet yet, so his ending falls back to Arriba's.
+    // Mateus Prioro: the 3D-glasses armchair (beach ending sheet delivered by the author).
     { id: 'mateus-prioro',   name: 'Mateus Prioro',   status: 'available', playable: true },
     // Hidden cheat: finishing the campaign twice brings Ananias back.
     { id: 'ananias',         name: 'Ananias',         status: 'inactive', playable: true, unlockAfterWins: 2 },
@@ -64,6 +64,7 @@ const GRID_COLUMNS = 4;   // keep in step with .character-grid in style.css
 
 const roster = {
     selected: DEFAULT_CHARACTER,
+    wonWith: [],           // ids of the characters that have finished the campaign (Easter egg)
     completedScenes: [],   // indexes of SCENES the player has completed at least once
     campaignWins: 0,       // how many times the campaign was finished
 
@@ -73,6 +74,7 @@ const roster = {
             if (Array.isArray(saved.completedScenes)) {
                 this.completedScenes = saved.completedScenes.filter(Number.isInteger);
             }
+            if (Array.isArray(saved.wonWith)) this.wonWith = saved.wonWith.filter((id) => typeof id === 'string');
             if (Number.isInteger(saved.campaignWins)) this.campaignWins = saved.campaignWins;
             else if (saved.campaignWon === true) this.campaignWins = 1;   // saved by an older version
             if (saved.selected && this.canPlay(this.get(saved.selected))) this.selected = saved.selected;
@@ -86,6 +88,7 @@ const roster = {
             localStorage.setItem(CHARACTER_STORAGE_KEY, JSON.stringify({
                 selected: this.selected,
                 completedScenes: this.completedScenes,
+                wonWith: this.wonWith,
                 campaignWins: this.campaignWins,
             }));
         } catch (error) {
@@ -118,11 +121,20 @@ const roster = {
     },
 
     /* Records a won campaign. Returns the characters it unlocked, if any. */
-    winCampaign() {
+    winCampaign(characterId) {
+        if (characterId && !this.wonWith.includes(characterId)) this.wonWith.push(characterId);
         const lockedBefore = CHARACTERS.filter((character) => this.statusOf(character) !== 'available');
         this.campaignWins += 1;
         this.save();
         return lockedBefore.filter((character) => this.statusOf(character) === 'available');
+    },
+
+    /* Easter egg: true once every playable character has finished the campaign.
+       Ananias is hidden and the boss is secret, so they don't count. */
+    wonWithEveryone() {
+        return CHARACTERS
+            .filter((character) => character.playable && character.status === 'available')
+            .every((character) => this.wonWith.includes(character.id));
     },
 
     /* The name to show: the secret character stays "?" until revealed. */
