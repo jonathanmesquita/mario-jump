@@ -45,6 +45,7 @@ const ENDING = {
         'amaury-caldeira': { image: './images/ending/sprite-amaury-caldeira-final-praia-01.webp', width: 0.25, contentBottom: 0.931, feetY: 0.95,  x: 0.15 },
         'ana-caroline':    { image: './images/ending/sprite-ana-caroline-final-praia-01.webp',  width: 0.25, contentBottom: 0.963, feetY: 0.95,  x: 0.15 },
         milena:            { image: './images/ending/sprite-milena-final-praia-01.webp',        width: 0.25, contentBottom: 0.961, feetY: 0.95,  x: 0.17 },
+        'mateus-prioro':   { image: './images/ending/sprite-mateus-prioro-final-praia-01.webp', width: 0.25, contentBottom: 0.939, feetY: 0.95,  x: 0.15 },
         ananias:           { image: './images/ending/sprite-ananias-final-praia-01.webp',       width: 0.25, contentBottom: 0.954, feetY: 0.95,  x: 0.15 },
     },
 
@@ -69,6 +70,11 @@ const ENDING = {
     },
     banner: { speed: 110, size: 34, gap: 120, y: 0.6 },   // px/s, px, px between repeats, fraction of height
 
+    // Easter egg: after finishing the campaign with every character, all of
+    // them celebrate together. Each one is drawn at 'width' (fraction of the
+    // scenery width), evenly spread between 'from' and 'to'.
+    everyone: { width: 0.17, from: 0.02, to: 0.83, feetY: 0.97 },
+
     // On wide screens, how far the mirrored sides stay visible (fraction of
     // the scenery width) before they are fully black.
     sideReach: 0.28,
@@ -92,7 +98,8 @@ function endingCharacterId(id) {
 
 /* Starts the download of the beach and of this character's ending sheet.
    Calling it again reuses what is already loading or loaded. */
-function preloadEnding(characterId) {
+function preloadEnding(characterId, everyone) {
+    if (everyone) for (const id of Object.keys(ENDING.characters)) preloadEnding(id, false);
     if (!endingImages.promise) {
         endingImages.promise = Promise.all([
             loadImage(ENDING.scenery),
@@ -222,8 +229,9 @@ function drawCredits(ctx, credits, world) {
 
 /* ---------- beach ---------- */
 
-function createBeach(characterId) {
+function createBeach(characterId, everyone) {
     return {
+        everyone: Boolean(everyone),
         character: endingCharacterId(characterId),
         time: 0,
         reduced: prefersReducedMotion(),
@@ -370,7 +378,8 @@ function drawBeach(ctx, beach, world) {
     }
 
     drawWaves(ctx, beach, left, top, width, height);
-    drawHammock(ctx, beach, left, top, width, height);
+    if (beach.everyone) drawEveryone(ctx, beach, left, top, width, height);
+    else drawHammock(ctx, beach, left, top, width, height);
     ctx.globalAlpha = 1;
     drawFireworks(ctx, beach, world);
     drawBanner(ctx, beach, world);
@@ -419,6 +428,33 @@ function drawWaves(ctx, beach, left, top, width, height) {
     ctx.globalAlpha = alpha * waves.alpha;
     ctx.drawImage(waveCanvas, left + Math.round(waves.x * width), top + Math.round(waves.y * height));
     ctx.globalAlpha = alpha;
+}
+
+/* Easter egg: every character that has an ending sheet, side by side. */
+function drawEveryone(ctx, beach, left, top, width, height) {
+    const ids = Object.keys(ENDING.characters).filter((id) => endingImages.characters[id]);
+    const cfg = ENDING.everyone;
+    const grid = ENDING.characterGrid;
+    ids.forEach((id, index) => {
+        const image = endingImages.characters[id];
+        const place = ENDING.characters[id];
+        const cellWidth = image.width / grid.columns;
+        const cellHeight = image.height / grid.rows;
+        const drawWidth = cfg.width * width;
+        const drawHeight = drawWidth * cellHeight / cellWidth;
+        const spread = ids.length > 1 ? index / (ids.length - 1) : 0.5;
+        const frame = beach.reduced ? 0 : (Math.floor(beach.time * grid.fps) + index * 3) % grid.frames;   // out of step
+        ctx.drawImage(
+            image,
+            (frame % grid.columns) * cellWidth,
+            Math.floor(frame / grid.columns) * cellHeight,
+            cellWidth, cellHeight,
+            left + Math.round((cfg.from + spread * (cfg.to - cfg.from)) * width),
+            top + Math.round(cfg.feetY * height - place.contentBottom * drawHeight),
+            drawWidth,
+            drawHeight
+        );
+    });
 }
 
 /* The run's character on the beach (Arriba if that sheet failed to load). */
