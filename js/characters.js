@@ -34,7 +34,7 @@ const CHARACTERS = [
     { id: 'amaury-caldeira', name: 'Amaury Caldeira', status: 'available', playable: true },
     { id: 'ana-caroline',    name: 'Ana Caroline',    status: 'available', playable: true },
     { id: 'milena',          name: 'Milena',          status: 'available', playable: true },
-    // Mateus Prioro has no beach sheet yet, so his ending falls back to Arriba's.
+    // Mateus Prioro: beach ending cut from his pose sheet (an armchair with a gentle bob).
     { id: 'mateus-prioro',   name: 'Mateus Prioro',   status: 'available', playable: true },
     // Hidden cheat: finishing the campaign twice brings Ananias back.
     { id: 'ananias',         name: 'Ananias',         status: 'inactive', playable: true, unlockAfterWins: 2 },
