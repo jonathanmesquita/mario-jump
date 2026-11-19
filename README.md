@@ -91,9 +91,9 @@ js/
 images/
   cenarios/      fundos de cada lugar
   obstaculos/    objetos a pular
-  characters/    folha de sprites do Arriba
+  characters/    retratos e animações dos personagens
     portraits/   retratos da seleção (normal | selecionado) e manifest.json
-    animations/  folhas de animação dos colegas (5 colunas × 4 linhas)
+    animations/  folhas de animação de todos os personagens, inclusive o Arriba (5 colunas × 4 linhas)
   menu/          wallpapers do menu (vagão do metrô) e da tela de seleção
   ending/        cenário, rede e ondas da cena final
 tools/

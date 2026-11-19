@@ -16,9 +16,9 @@
    The colleagues' tables were measured from their PNGs; re-measure them if
    a sheet is redrawn. */
 const SPRITES = {
-    // Arriba: images/characters/sprite-arriba-jump-01.webp
+    // Arriba: images/characters/animations/sprite-arriba-animacao-02.webp
     arriba: {
-    src: './images/characters/sprite-arriba-jump-01.webp',
+    src: './images/characters/animations/sprite-arriba-animacao-02.webp',
     scale: 0.6,                                  // sheet px -> screen px
 
     frames: {

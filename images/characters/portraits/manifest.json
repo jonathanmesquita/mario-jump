@@ -21,7 +21,7 @@
       "status": "active",
       "initiallyUnlocked": true,
       "portrait": "portrait-arriba-01.webp",
-      "gameplaySprite": "images/characters/sprite-arriba-jump-01.webp"
+      "gameplaySprite": "images/characters/animations/sprite-arriba-animacao-02.webp"
     },
     {
       "id": "ariel",
