@@ -21,7 +21,7 @@
       "status": "active",
       "initiallyUnlocked": true,
       "portrait": "portrait-arriba-01.webp",
-      "gameplaySprite": "images/characters/sprite-arriba-jump-01.webp"
+      "gameplaySprite": "images/characters/animations/sprite-arriba-animacao-02.webp"
     },
     {
       "id": "ariel",
@@ -54,6 +54,14 @@
       "initiallyUnlocked": false,
       "portrait": "portrait-milena-01.webp",
       "gameplaySprite": "images/characters/animations/sprite-milena-animacao-02.webp"
+    },
+    {
+      "id": "mateus-prioro",
+      "name": "Mateus Prioro",
+      "status": "active",
+      "initiallyUnlocked": true,
+      "portrait": "portrait-mateus-prioro-01.webp",
+      "gameplaySprite": "images/characters/animations/sprite-mateus-prioro-animacao-02.webp"
     },
     {
       "id": "ananias",

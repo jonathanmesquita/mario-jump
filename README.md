@@ -47,7 +47,7 @@ Durante a partida, a engrenagem pausa o jogo; ali só o som pode ser alterado.
 
 ## Personagens
 
-No menu, o botão "Escolher personagem" abre a seleção: Arriba, Ariel, Amaury Caldeira, Ana Caroline ou Milena. A escolha fica salva, e "Jogar" começa com o último personagem escolhido. Também dá para trocar pelo botão "Trocar personagem" no Game Over e no final. Cada um tem a sua própria animação de corrida, pulo e comemoração, e o seu próprio final na praia. Ananias aparece como inativo, mas é liberado em segredo para quem terminar a campanha duas vezes.
+No menu, o botão "Escolher personagem" abre a seleção: Arriba, Ariel, Amaury Caldeira, Ana Caroline, Milena ou Mateus Prioro (o final na praia dele ainda usa a cena do Arriba). A escolha fica salva, e "Jogar" começa com o último personagem escolhido. Também dá para trocar pelo botão "Trocar personagem" no Game Over e no final. Cada um tem a sua própria animação de corrida, pulo e comemoração, e o seu próprio final na praia. Ananias aparece como inativo, mas é liberado em segredo para quem terminar a campanha duas vezes.
 
 Há também um sétimo espaço, marcado com "?": é o chefe secreto, que por enquanto fica sempre bloqueado.
 
@@ -91,9 +91,9 @@ js/
 images/
   cenarios/      fundos de cada lugar
   obstaculos/    objetos a pular
-  characters/    folha de sprites do Arriba
+  characters/    retratos e animações dos personagens
     portraits/   retratos da seleção (normal | selecionado) e manifest.json
-    animations/  folhas de animação dos colegas (5 colunas × 4 linhas)
+    animations/  folhas de animação de todos os personagens, inclusive o Arriba (5 colunas × 4 linhas)
   menu/          wallpapers do menu (vagão do metrô) e da tela de seleção
   ending/        cenário, rede e ondas da cena final
 tools/

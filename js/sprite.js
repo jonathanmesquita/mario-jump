@@ -16,9 +16,9 @@
    The colleagues' tables were measured from their PNGs; re-measure them if
    a sheet is redrawn. */
 const SPRITES = {
-    // Arriba: images/characters/sprite-arriba-jump-01.webp
+    // Arriba: images/characters/animations/sprite-arriba-animacao-02.webp
     arriba: {
-    src: './images/characters/sprite-arriba-jump-01.webp',
+    src: './images/characters/animations/sprite-arriba-animacao-02.webp',
     scale: 0.6,                                  // sheet px -> screen px
 
     frames: {
@@ -114,6 +114,23 @@ const SPRITES = {
             duck: [[76, 905, 153, 182, 100]],
             hurt: [[324, 836, 188, 251, 103]],
             victory: [[595, 838, 173, 250, 70], [861, 835, 174, 255, 80], [1124, 864, 189, 226, 83]],
+        },
+        fps: { idle: 5, run: 12, victory: 4 },
+    },
+
+    // Mateus Prioro: poltrona 3D. His sheet has no duck / hurt frames, so duck
+    // reuses the jump crouch and hurt the closed-eyes idle frame; row 4 is his
+    // 5-frame celebration in the armchair.
+    'mateus-prioro': {
+        src: './images/characters/animations/sprite-mateus-prioro-animacao-02.webp',
+        scale: 0.6,
+        frames: {
+            idle: [[105, 32, 122, 242, 60], [368, 30, 122, 244, 60], [632, 27, 123, 247, 61], [900, 37, 121, 237, 60], [1165, 39, 123, 235, 61]],
+            run: [[86, 309, 153, 248, 92], [347, 305, 159, 249, 99], [608, 300, 175, 234, 108], [893, 314, 145, 242, 84], [1161, 315, 141, 241, 78]],
+            jump: [[98, 634, 144, 200, 84], [355, 596, 151, 236, 91], [633, 581, 135, 216, 66], [884, 595, 146, 226, 84], [1165, 624, 136, 210, 74]],
+            duck: [[98, 634, 144, 200, 84]],
+            hurt: [[632, 27, 123, 247, 61]],
+            victory: [[67, 862, 202, 251, 80], [335, 862, 191, 251, 79], [600, 862, 190, 250, 80], [865, 864, 194, 249, 82], [1131, 868, 199, 245, 82]],
         },
         fps: { idle: 5, run: 12, victory: 4 },
     },

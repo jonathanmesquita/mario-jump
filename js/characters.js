@@ -34,6 +34,8 @@ const CHARACTERS = [
     { id: 'amaury-caldeira', name: 'Amaury Caldeira', status: 'available', playable: true },
     { id: 'ana-caroline',    name: 'Ana Caroline',    status: 'available', playable: true },
     { id: 'milena',          name: 'Milena',          status: 'available', playable: true },
+    // Mateus Prioro has no beach sheet yet, so his ending falls back to Arriba's.
+    { id: 'mateus-prioro',   name: 'Mateus Prioro',   status: 'available', playable: true },
     // Hidden cheat: finishing the campaign twice brings Ananias back.
     { id: 'ananias',         name: 'Ananias',         status: 'inactive', playable: true, unlockAfterWins: 2 },
     // The secret boss. For now it always stays locked: its face, gameplay and
@@ -45,7 +47,7 @@ const CHARACTERS = [
 ];
 
 for (const character of CHARACTERS) {
-    character.portrait = `./images/characters/portraits/portrait-${character.id}-01.webp`;
+    character.portrait = character.portrait || `./images/characters/portraits/portrait-${character.id}-01.webp`;
 }
 
 /* CSS url() inside a custom property is resolved against the stylesheet
