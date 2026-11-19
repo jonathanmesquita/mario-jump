@@ -60,8 +60,8 @@
       "name": "Mateus Prioro",
       "status": "active",
       "initiallyUnlocked": true,
-      "portrait": null,
-      "gameplaySprite": null
+      "portrait": "portrait-mateus-prioro-01.webp",
+      "gameplaySprite": "images/characters/animations/sprite-mateus-prioro-animacao-02.webp"
     },
     {
       "id": "ananias",

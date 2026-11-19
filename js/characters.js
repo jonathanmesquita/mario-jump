@@ -34,13 +34,8 @@ const CHARACTERS = [
     { id: 'amaury-caldeira', name: 'Amaury Caldeira', status: 'available', playable: true },
     { id: 'ana-caroline',    name: 'Ana Caroline',    status: 'available', playable: true },
     { id: 'milena',          name: 'Milena',          status: 'available', playable: true },
-    // Mateus Prioro: roster slot ready, but his art is not delivered yet. Until it
-    // is, he borrows the silhouette portrait and shows "coming soon". When the
-    // art exists: drop portrait-mateus-prioro-01.webp in images/characters/portraits/,
-    // remove the portrait line, set playable: true, and add his sheets to
-    // SPRITES (sprite.js) and ENDING.characters (ending.js).
-    { id: 'mateus-prioro',   name: 'Mateus Prioro',   status: 'available', playable: false,
-      portrait: './images/characters/portraits/portrait-chefe-secreto-01.webp' },
+    // Mateus Prioro has no beach sheet yet, so his ending falls back to Arriba's.
+    { id: 'mateus-prioro',   name: 'Mateus Prioro',   status: 'available', playable: true },
     // Hidden cheat: finishing the campaign twice brings Ananias back.
     { id: 'ananias',         name: 'Ananias',         status: 'inactive', playable: true, unlockAfterWins: 2 },
     // The secret boss. For now it always stays locked: its face, gameplay and
